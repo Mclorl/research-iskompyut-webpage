@@ -1,0 +1,391 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(180deg, #fdcf8d 0%, #f3b074 100%);
+    min-height: 100vh;
+    color: #b35d33;
+    padding-top: 50px;
+}
+
+/* Navbar Styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 50px;
+    background: linear-gradient(90deg, #f0ae64 0%, #cf7d1f 100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-right: 20px;
+}
+
+.logo img {
+    height: 50px;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    
+    transition: all 0.2s ease;
+    
+    position: relative; 
+    text-decoration: none; 
+    display: inline-block;
+}
+
+
+.nav-links li {
+    transition: all 0.3s ease;
+}
+
+/*  Not good hover design but can be useful for future use.
+.nav-links a::before {
+
+    content: ''; 
+    position: absolute; 
+    bottom: 0;
+    left: 0;
+    width: 100%; 
+    background: currentColor;
+    
+    height: 3px;
+    border-radius: 20px;
+    transform: scale3d(1, 1, 1);
+    transition: transform 0.2s, opacity 0.2s;
+    transition-timing-function: cubic-bezier(0.2, 0.57, 0.67, 1.53);
+    
+    
+    opacity: 0.6;
+}
+
+.nav-links a:hover::before {
+    transition-timing-function: cubic-bezier(0.8, 0, 0.1, 1);
+    transition-duration: 0.4s;
+    opacity: 1;
+    transform: scale3d(1.2, 0.1, 1);
+}
+
+.nav-links a span {
+    transform: translate3d(0, -4px, 0);
+    display: inline-block;
+    transition: transform 0.2s 0.05s cubic-bezier(0.2, 0.57, 0.67, 1.53);
+}
+
+.nav-links a:hover span {
+    transform: translate3d(0, 0, 0);
+    transition-timing-function: cubic-bezier(0.8, 0, 0.1, 1);
+    transition-duration: 0.4s;
+    transition-delay: 0s;
+}
+*/
+
+.nav-links li:hover {
+    transform: translateY(-2px);
+    color: #ebebeb;
+}
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 2px;
+    bottom: 0;
+    left: 0;
+    background-color: #ffffff;
+    transition: transform 0.25s ease-out;
+}
+
+.nav-links a:hover::after {
+    transform: scaleX(1);
+}
+
+
+
+/* Search Bar */
+.search-container input {
+    background: rgba(180, 180, 180, 0.3);
+    border: 1px solid #fff;
+    padding: 5px 15px;
+    border-radius: 4px;
+    color: white;
+    width: 250px;
+}
+
+.search-container input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Buttons */
+.login {
+    color: white;
+    text-decoration: none;
+    position: relative; 
+    padding: 10px 30px; 
+    display: inline-block;
+}
+
+/*LOG IN ANIMATION*/
+
+.login::before,
+.login::after {
+    content: '';
+    position: absolute;
+    transition: clip-path 0.4s cubic-bezier(0.2, 1, 0.8, 1), 
+                -webkit-clip-path 0.4s cubic-bezier(0.2, 1, 0.8, 1);
+    
+    -webkit-clip-path: polygon(0% 0%, 100% 0, 100% 50%, 100% 100%, 0% 100%);
+    clip-path: polygon(0% 0%, 100% 0, 100% 50%, 100% 100%, 0% 100%);
+}
+
+.login::after {
+    background: #db6a0e; /*Outline color of the login button*/
+    inset: -2px; 
+    z-index: -2;       
+}
+
+.login::before {
+    background: #e46f10;
+    inset: 0; 
+    z-index: -1;
+}
+
+.login:hover::before,
+.login:hover::after {
+    -webkit-clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
+    clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%);
+}
+
+.login span {
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.2, 1, 0.8, 1);
+}
+
+.login:hover span {
+    transform: translate3d(-10px, 0, 0);
+}
+
+
+/*
+.signup-btn {
+    border: 1px solid white;
+    padding: 10px 20px; 
+    border-radius: 4px;
+    color: white;
+    text-decoration: none;
+}*/
+
+/*Sign Up Animation*/
+.signup-btn {
+    position: relative;
+    border: 1px solid white;
+    display: inline-block;
+    padding: 10px 20px; 
+    color: white;
+    text-decoration: none;
+    z-index: 1; /* Sets a stacking context */
+}
+
+.signup-btn::before {
+    content: '';
+    background-color: rgba(255, 255, 255, 0.3);
+    position: absolute;
+    inset: 0; 
+    z-index: -1; 
+    
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+    transition: clip-path 0.3s cubic-bezier(0.7, 0, 0.2, 1);
+}
+
+.signup-btn:hover::before {
+    -webkit-clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+}
+
+@keyframes MoveUpInitial {
+    to { transform: translateY(-105%); }
+}
+
+@keyframes MoveUpEnd {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+.signup-btn span {
+    display: block;
+    position: relative;
+}
+
+.signup-btn > span {
+    overflow: hidden; 
+}
+
+.signup-btn:hover > span > span {
+    animation: MoveUpInitial 0.2s forwards, MoveUpEnd 0.2s forwards 0.2s;
+}
+
+
+.main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.main h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 30px;
+    font-weight: 800;
+}
+
+.main p {
+    font-size: 1.1rem;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    max-width: 100%;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.survey-btn {
+	font-family: serif;
+    font-size: 1.15rem;
+    color: #fff;
+    background: none;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    display: inline-block;
+    margin-bottom: 225px;
+}
+
+.survey-btn .button__bg {
+	top: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #db6a0e; 
+    border-radius: 5px;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.1, 0, 0.3, 1);
+    z-index: 0;
+}
+
+.survey-btn:hover .button__bg {
+	transform: scale3d(1.2,1.2,1);
+}
+
+.survey-btn .button__bg::before,
+.survey-btn .button__bg::after {
+	content: '';
+	position: absolute;
+	background: #e46f10;
+}
+
+.survey-btn .button__bg::before {
+	width: 110%;
+	height: 0;
+	padding-bottom: 110%;
+	top: 50%;
+	left: 50%;
+	border-radius: 50%;
+	transform: translate3d(-50%,-50%,0) scale3d(0,0,1);
+}
+
+.survey-btn:hover .button__bg::before {
+	transition: transform 0.4s cubic-bezier(0.1, 0, 0.3, 1);
+	transform: translate3d(-50%,-50%,0) scale3d(1,1,1);
+}
+.survey-btn .button__bg::after {
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+.survey-btn:hover .button__bg::after {
+	opacity: 1;
+	transition-duration: 0.01s;
+	transition-delay: 0.3s;
+}
+
+.survey-btn span {
+	display: block;
+	position: relative;
+	padding: 1.5rem 3rem;
+	/*mix-blend-mode: difference; */
+}
+
+
+/*
+.survey-btn:hover {
+    background-color: #b35d33;
+    color: #fde69a;
+}
+*/
+/* Footer elements */
+.see-more {
+    font-weight: bold;
+    opacity: 0.7;
+}
+
+.arrow-down {
+    font-size: 3rem;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+    animation: bounce 2s infinite ease-in-out;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(20px);
+    }
+}
+
