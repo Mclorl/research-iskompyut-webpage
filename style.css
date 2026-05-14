@@ -13,6 +13,8 @@ body {
     padding-top: 50px;
 }
 
+
+
 /* Navbar Styling */
 .navbar {
     display: flex;
@@ -85,7 +87,6 @@ body {
     transition: transform 0.2s, opacity 0.2s;
     transition-timing-function: cubic-bezier(0.2, 0.57, 0.67, 1.53);
     
-    
     opacity: 0.6;
 }
 
@@ -107,8 +108,7 @@ body {
     transition-timing-function: cubic-bezier(0.8, 0, 0.1, 1);
     transition-duration: 0.4s;
     transition-delay: 0s;
-}
-*/
+}*/
 
 .nav-links li:hover {
     transform: translateY(-2px);
@@ -147,6 +147,8 @@ body {
     color: rgba(255, 255, 255, 0.7);
 }
 
+
+
 /* Buttons */
 .login {
     color: white;
@@ -155,6 +157,8 @@ body {
     padding: 10px 30px; 
     display: inline-block;
 }
+
+
 
 /*LOG IN ANIMATION*/
 
@@ -206,6 +210,8 @@ body {
     text-decoration: none;
 }*/
 
+
+
 /*Sign Up Animation*/
 .signup-btn {
     position: relative;
@@ -255,6 +261,7 @@ body {
 .signup-btn:hover > span > span {
     animation: MoveUpInitial 0.2s forwards, MoveUpEnd 0.2s forwards 0.2s;
 }
+
 
 
 .main {
