@@ -12,7 +12,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f7b56c; /* placeholder for graphics */
+    background-image: url("../srcs/background.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+    margin: 0;
 }
 
 .login-container {
@@ -33,6 +38,7 @@
 
 .login-box h2 {
     margin-bottom: 20px;
+    color: #c56a1e;
 }
 
 input {
