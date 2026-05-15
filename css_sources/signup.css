@@ -31,12 +31,17 @@
 .signup-info {
     flex: 1;
     padding: 60px;
-    background: #ffd9a8; /* placeholder for graphics */
     box-sizing: border-box;
     display: block;
     height: 100vh;
     min-width: 0;
     overflow: auto;
+    background-image: url("./srcs/background.png"); /* path to your image */
+    background-size: cover;       /* makes the image cover the whole area */
+    background-position: right;  /* centers the image */
+    background-repeat: no-repeat; /* prevents tiling */
+    height: 100vh;                /* ensures full viewport height */
+    margin: 0;
 }
 
 .info-content {

@@ -12,7 +12,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f7b56c; /* placeholder for graphics */
+    background-image: url("./srcs/background.png"); /* path to your image */
+    background-size: cover;       /* makes the image cover the whole area */
+    background-position: center;  /* centers the image */
+    background-repeat: no-repeat; /* prevents tiling */
+    height: 100vh;                /* ensures full viewport height */
+    margin: 0;
 }
 
 .login-container {
