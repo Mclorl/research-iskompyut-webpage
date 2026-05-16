@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="style.css">
 
     <link rel="icon" type="image/x-icon" href="./srcs/Logo.png">
+
+    <!--Java script imports-->
+
 </head>
 
 <body>
@@ -34,19 +37,26 @@
         </div>
     </nav>
 
-    <main class="main">
-        <div class="main-content">
-            <h1 class = "title">IsKompyut: A Web Application for Personal Performance Monitoring to Improve Academic Awareness Among PUP Scholars</h1>
-            
-            <p>Address the issues of grade uncertainty and academic stress, this study proposes the development of IsKompyut, a specialized web application tailored for the PUP academic environment.</p>
+    <script src="./js_sources/scriptIndex.js" type="module"></script>
 
-            <button class="survey-btn">
-                <div class="button__bg"></div><span>Answer our Survey</span>
-            </button>
-        </div>
+    <main class="main">
+
+        <section class="hero">
+            <div class="main-content">
+                <h1 class = "title">IsKompyut: A Web Application for Personal Performance Monitoring to Improve Academic Awareness Among PUP Scholars</h1>
+                
+                <p>Address the issues of grade uncertainty and academic stress, this study proposes the development of IsKompyut, a specialized web application tailored for the PUP academic environment.</p>
+
+                <button class="survey-btn">
+                    <div class="button__bg"></div><span>Answer our Survey</span>
+                </button>
+            </div>
+        </section>
+        
 
         <div class="guide">
-            <h1 id="guide-id">Guide</h1>
+            <span id="guide-id" class="anchor"></span>
+            <h1>Guide</h1>
             <div class="vid-container">
                 <video controls>
                     <source src = ".mp4" type = "video/mp4">
@@ -56,7 +66,8 @@
         </div>
 
         <div class = "about">
-            <h1 id="about-id">About Us</h1>
+            <span id="about-id" class="anchor"></span>
+            <h1>About Us</h1>
             <img src="./srcs/Logo.png" alt="Logo">
             <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quae accusantium explicabo, incidunt optio eaque distinctio eum illum quos possimus ullam tenetur. Aliquam illo incidunt dolorum vero alias delectus quidem autem voluptas commodi maxime molestiae sint, fugiat ex exercitationem fuga voluptates officiis temporibus rerum reprehenderit reiciendis distinctio sed voluptatum earum! Voluptates?</p>
             <p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Deserunt voluptatibus inventore ullam voluptatum iusto explicabo, quam itaque excepturi atque commodi id consequuntur molestiae consequatur in enim esse odit fuga deleniti minima doloremque assumenda est modi ipsum dolore? Voluptatibus facilis hic saepe delectus laborum. Vel rem molestiae aliquam harum deleniti fuga.</p>
@@ -64,7 +75,8 @@
         </div>
 
         <div class = "researchers">
-            <h1 id="researcher-id">Researchers</h1>
+            <span id="researcher-id" class="anchor"></span>
+            <h1>Researchers</h1>
             <div class = "carousel">
                 <div class = "group">
                     <div class = "card">
@@ -213,6 +225,5 @@
             </div>
         </div>
     </main>
-
 </body>
 </html>
