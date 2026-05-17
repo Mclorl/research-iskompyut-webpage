@@ -9,23 +9,23 @@
 .signup-html,
 .signup-body {
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
     margin: 0;
     padding: 0;
     border: none;
 }
 
 .signup-body {
-    height: 100%;
+    height: 100vh;
 }
 
 .signup-wrapper {
     display: flex;
-    height: 100%h;
+    height: 100vh;
     width: 100%;
     flex-direction: row;
     flex-wrap: nowrap;
-    min-height: 100vh;
+    overflow: hidden;
 }
 
 .signup-info {
@@ -33,11 +33,11 @@
     padding: 60px;
     box-sizing: border-box;
     display: block;
-    height: 100%;
+    height: 100vh;
     min-width: 0;
     overflow: auto;
     background-image: url("../srcs/background.png");
-    background-size: inherit;
+    background-size: cover;
     background-position: right;
     background-repeat: no-repeat;
     height: 100vh;
@@ -54,13 +54,23 @@
 }
 
 .signup-info h2 {
-    margin-bottom: 0.5rem;
-    font-size: 2rem;
-    color: #a75105;
+    margin-bottom: 10px;
+    font-size: 38px;
+    color: #e4832f;
+    white-space: nowrap;
 }
 
 .signup-info p {
-    color: #94490d;
+    margin-bottom: 10px;
+    color: #c56a1e;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: #d46a00;
+    cursor: pointer;
+    font-size: 15px;
 }
 
 .toggle {
@@ -70,23 +80,14 @@
 
 .toggle-btn {
     display: inline-block;
-    height: auto;
-    width: 10rem;
     margin: 0;
     padding: 0;
-    background: none;
-    color: rgb(196, 67, 3);
 }
 
 .toggle ul {
     list-style: none;
     margin-top: 12px;
     display: none;
-    color:rgb(128, 64, 0);
-}
-
-.toggle p{
-    color:rgb(87, 44, 1);
 }
 
 .toggle ul.show {
@@ -95,11 +96,6 @@
 
 .toggle ul li {
     margin: 6px 0;
-    font-weight: bold;
-}
-
-.toggle ul p{
-    margin-left: 1rem;
 }
 
 .signup-form {
@@ -112,6 +108,7 @@
     box-sizing: border-box;
     height: 100vh;
     min-width: 0;
+    overflow: auto;
 }
 
 .form-box {
@@ -119,30 +116,19 @@
     max-width: 90%;
 }
 
-.logo-container{
-    background-image: url("../srcs/background.png");
-    background-size: inherit;
-    border-radius: 50%;
-    margin-bottom: 1rem;
-    height: 7rem;
-    width: 7rem;
-}
-
-.logo-container img{
-    height: 100%;
-    width: 100%;
-}
-
-.form-box div{
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-}
-
 .signup-form h1 {
-    font-size: 2rem;
     color: white;
     margin-bottom: 25px
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    background: #f3f3f3;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .signup-form input {
@@ -188,7 +174,7 @@ button {
     text-decoration: none;
 }
 
-@media (max-width: 950px) {
+/* @media (max-width: 768px) {
     .signup-wrapper {
         flex-direction: column;
     }
@@ -197,4 +183,4 @@ button {
         height: auto;
         padding: 30px;
     }
-}
+}*/
