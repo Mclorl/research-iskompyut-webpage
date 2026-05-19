@@ -32,7 +32,7 @@ body {
 .navbar {
     display: flex;
     justify-content: space-between;
-    z-index: 1;
+    z-index: 1000;
     align-items: center;
     padding: 15px 50px;
     background: linear-gradient(90deg, #f0ae64 0%, #cf7d1f 100%);
