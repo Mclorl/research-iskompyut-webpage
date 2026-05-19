@@ -752,11 +752,8 @@ body {
     z-index: 10;
 
     color: rgb(196, 73, 7);
-    background: rgba(196, 73, 7, 0.15);
-    border-radius: 50%;
     padding: 15px;
     font-size: 24px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     transition: all 0.3s ease;
 }
 
@@ -776,7 +773,6 @@ body {
 
 .swiper-button-next:hover,
 .swiper-button-prev:hover {
-    background: rgba(196, 73, 7, 0.3);
     transform: translateY(-50%) scale(1.2);
 }
 
