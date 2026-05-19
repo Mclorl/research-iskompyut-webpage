@@ -426,6 +426,9 @@ body {
     width: 100%;
     margin: 0 auto;
     transform: translateY(-5vh); 
+    position: relative;
+    z-index: 2;
+    padding: 2rem;
 }
 
 .survey-btn {
