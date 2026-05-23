@@ -27,12 +27,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build with Parcel
-        run: npm run build
+      - name: Wipe Cache and Build with Parcel
+        run: |
+          rm -rf .parcel-cache dist
+          npx parcel build index.html html_sources/*.html --public-url /research-iskompyut-webpage/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
