@@ -9,6 +9,6 @@
   },
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel build index.html --public-url ./"
+    "build": "parcel build index.html --public-url /research-iskompyut-webpage/"
   }
 }
