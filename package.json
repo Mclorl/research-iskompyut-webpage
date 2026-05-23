@@ -8,7 +8,7 @@
     "three": "^0.184.0"
   },
   "scripts": {
-    "start": "parcel index.html html_sources/*.html",
+    "dev": "parcel index.html html_sources/*.html",
     "build": "parcel build index.html html_sources/*.html --public-url /research-iskompyut-webpage/"
   }
 }
