@@ -23,7 +23,9 @@ loginForm.addEventListener("submit", async (e) => {
         await signInWithEmailAndPassword(auth, pseudoEmail, password);
         
         // Success! Redirect user to your app dashboard index page
-        window.location.href = "../index.html"; 
+        const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+        const rootPath = repoPath.substring(0, repoPath.lastIndexOf('/')); 
+        window.location.href = `${rootPath}/index.html`;
     } catch (error) {
         switch (error.code) {
             case "auth/invalid-credential":

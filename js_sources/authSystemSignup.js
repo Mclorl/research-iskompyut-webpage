@@ -45,9 +45,10 @@ signupForm.addEventListener("submit", async (e) => {
         showSuccess("Account registered successfully! Redirecting...");
         signupForm.reset();
         
-        // Push user to login portal or dashboard after brief delay
+        // Push user to dashboard
         setTimeout(() => {
-            window.location.href = "login.html"; // placeholder
+            const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+            window.location.href = `${repoPath}/login.html`;
         }, 1500);
 
     } catch (error) {
