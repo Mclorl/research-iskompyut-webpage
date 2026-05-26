@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Course Add</title>
+    <link rel="stylesheet" href="/css_sources/newCourse.css">
+    <link rel="icon" type="image/x-icon" href="/srcs/Logo.png">
+</head>
+<body>
+    <nav class="navbar">
+
+        <div class="nav-left">
+
+            <a href="../index.html" class="logo">
+                <span class="logo-icon">
+                    <img src="/srcs/Logo.png" alt="Logo">
+                </span> 
+                <span class="logo-text">Kompyut</span>
+            </a>
+        </div>
+        
+        <div class="nav-right">
+            <ul class="nav-links">
+                <li><a href="#"><span>Dash Board</span></a></li>
+                <li><a href="#"><span>Set Goals</span></a></li>
+                <li><a href="#"><span>Log out</span></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <div class ="bgContainer">
+            <div class = "leftSideBar">
+                <div class = "greetingsContainer">
+                    <h1>Welcome, <br>&ltName&gt!</h1>
+                </div>
+                <div class = "formContainer">
+                    <form>
+                        <div class = "formulaContainer">
+                            <h2>Minor Subject</h2>
+                            <p class="formula">
+                                (Class Standard &times;
+                                <span class="fraction">
+                                    <span>70</span>
+                                    <span class="bottom">100</span>
+                                </span>)
+                                &plus;
+                                 (Exam &times;
+                                <span class="fraction">
+                                    <span>30</span>
+                                    <span class="bottom">100</span>
+                                </span>)
+                            </p>
+                            <button id = "minorFormula" class = "formulaBtn">Select Formula</button>
+                        </div>
+                        <div class = "formulaContainer">
+                            <h2>Major Subject</h2>
+                            <p class="formula">
+                                (Class Standard &times;
+                                <span class="fraction">
+                                    <span>60</span>
+                                    <span class="bottom">100</span>
+                                </span>)
+                                &plus;
+                                 (Exam &times;
+                                <span class="fraction">
+                                    <span>40</span>
+                                    <span class="bottom">100</span>
+                                </span>)
+                            </p>
+                            <button id = "majorFormula" class = "formulaBtn">Select Formula</button>
+                        </div>
+                        <div class = "formulaContainer">
+                            <h2>Customized</h2>
+                            <p>Type in your formula</p>
+                            <input type="text" id="customized-formula" placeholder="Enter your formula">
+                            <button type = "submit" id = "customFormula" class = "formulaBtn">Select Formula</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <div class = "mainContent">
+            <div class = "mainContainer">
+                <h3>Add New Course</h3>
+                <hr>
+                <div class = "courseInfo">
+                    <div class = "courseInfoA">
+                        <h5>Course Name</h5>
+                        <input type="text" id="course-name" placeholder="Ex. Discrete Structures 1">
+                        <h5>Instructor</h5>
+                        <input type="text" id="prof-name" placeholder="Ex. Mrs. Kanigan">
+                    </div>
+                    <div class = "courseInfoB">
+                        <h5>Course Code</h5>
+                        <input type="text" id="course-code" placeholder="Ex. COOMP 04">
+                        <h5>Formula Chosen: </h5>
+                        <p>(Select formula from left side bar)</p>
+                        <p class="showcasedFormula">
+                            (Class Standard &times;
+                            <span class="showcaseFraction">
+                                <span>??</span>
+                                <span class="bottom">100</span>
+                            </span>)
+                            &plus;
+                             (Exam &times;
+                            <span class="showcaseFraction">
+                                <span>??</span>
+                                <span class="bottom">100</span>
+                            </span>)
+                        </p>
+                    </div>
+                </div>
+                <div class = "inputGrades">
+                    <div class = "inputCard">
+                        <span>
+                            Percentage Distribution &ltPlaceholder (%??)&gt
+                        </span>
+                        <div class = "inputDropDown">
+                            <form>
+                                <select name="components" id="components">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                </select>
+                            </form>
+                            <span>Note: no. of components</span>
+                        </div>
+                        <input type="text" id="component-name" placeholder="Component name(Assignments, Quiz, Recitation)">
+                        <div class = "inputDropDown">
+                            <form>
+                                <select name="components" id="components">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                </select>
+                            </form>
+                            <span>Note: no. of &ltAssignments, etc.&gt</span>
+                        </div>
+                        <input type="text" id="component-weight" placeholder="Percentage of components (total should be ??%)">
+                        <div class = "inputDropDown">
+                            <form>
+                                <select name="components" id="components">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                </select>
+                            </form>
+                            <input type="number" id="score" placeholder="Score">
+                            <input type="number" id="total" placeholder="Total">
+                        </div>
+                    </div>
+                </div>
+                <div class = "mainButtons">
+                    <button id = "saveCourse" class = "saveBtn">Save Course</button>
+                    <button id = "cancelCourse" class = "cancelBtn">Cancel</button>
+                </div>
+            </div>
+        </div>
+            <div class = "rightSideBar">
+                <div class = "guideContainer">
+                    <div class = "guide">
+                        <h1>USER GUIDE</h1>
+                        <p>Lorem ipsum dolor sit amet...</p>
+                        <div class = "vidContainer">
+                            <video controls><source type = "video/mp4"></video>
+                        </div>
+                        <h4>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minus quis doloremque iure explicabo animi enim.</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
