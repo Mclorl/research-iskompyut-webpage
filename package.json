@@ -1,14 +1,26 @@
 {
   "devDependencies": {
+    "buffer": "^6.0.3",
     "parcel": "^2.16.4"
   },
   "dependencies": {
     "firebase": "^12.13.0",
+    "firebase-admin": "^13.10.0",
     "gsap": "^3.15.0",
     "three": "^0.184.0"
   },
   "scripts": {
     "dev": "parcel index.html html_sources/*.html",
     "build": "parcel build index.html html_sources/*.html --public-url /research-iskompyut-webpage/"
-  }
+  },
+  "name": "research-iskompyut-webpage-main",
+  "version": "1.0.0",
+  "description": "",
+  "@parcel/resolver-default": {
+  "packageExports": true
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
 }
