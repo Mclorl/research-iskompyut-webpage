@@ -2,7 +2,7 @@ import { auth, formatUsernameToEmail } from "./index.js";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 document.addEventListener("DOMContentLoaded", () => {
-    
+
     const loginForm = document.getElementById("login-form-element");
     const usernameInput = document.getElementById("login-username");
     const passwordInput = document.getElementById("login-password");
@@ -20,18 +20,30 @@ document.addEventListener("DOMContentLoaded", () => {
             e.preventDefault();
             if (errorEl) errorEl.style.display = "none";
 
-            const username = usernameInput.value;
-            const password = passwordInput.value;
+            const username = usernameInput?.value.trim();
+            const password = passwordInput?.value;
+
+            if (!username || !password) {
+                showError("Please enter both username and password.");
+                return;
+            }
+
             const pseudoEmail = formatUsernameToEmail(username);
+
+            if (!pseudoEmail) {
+                showError("Invalid username format.");
+                return;
+            }
 
             try {
                 await signInWithEmailAndPassword(auth, pseudoEmail, password);
-                
-                // Success! Redirect user to dashboard
-                const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-                const rootPath = repoPath.substring(0, repoPath.lastIndexOf('/')); 
-                window.location.href = `${rootPath}/index.html`; //placeholder dashboard
+                console.log("✅ Login successful, redirecting...");
+                const base = window.location.hostname === "localhost" ? "" : "/research-iskompyut-webpage";
+                window.location.href = `${base}/html_sources/dashboard.html`;
+
+
             } catch (error) {
+                console.error("❌ Login error:", error.code);
                 switch (error.code) {
                     case "auth/invalid-credential":
                         showError("Invalid username or password.");
