@@ -14,7 +14,7 @@ const firebaseConfig = {
   projectId: "iskompyut-4655e",
   storageBucket: "iskompyut-4655e.firebasestorage.app",
   messagingSenderId: "11455511103",
-  appId: "1:11455511103:web:c4f7cbfde543496e6b968a",
+  appId: "1:11455511103:web:c4f7cbfde543496e6b968a"
 };
 
 const app = initializeApp(firebaseConfig);
