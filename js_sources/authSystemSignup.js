@@ -1,5 +1,6 @@
-import { auth, formatUsernameToEmail } from "./index.js";
+import { auth, db, formatUsernameToEmail } from "./index.js";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore"; 
 
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -36,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const password = passwordInput.value;
             const confirmPassword = confirmPasswordInput.value;
 
-            // Validate local password matches
             if (password !== confirmPassword) {
                 showError("Passwords do not match.");
                 return;
@@ -45,7 +45,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const pseudoEmail = formatUsernameToEmail(username);
 
             try {
-                await createUserWithEmailAndPassword(auth, pseudoEmail, password);
+                // create the account in Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, pseudoEmail, password);
+                const user = userCredential.user;
+
+                await setDoc(doc(db, "users", user.uid), {
+                    fullName: nameInput.value,
+                    section: classInput.value,
+                    username: username,
+                    createdAt: new Date()
+                });
                 
                 showSuccess("Account registered successfully! Redirecting...");
                 signupForm.reset();

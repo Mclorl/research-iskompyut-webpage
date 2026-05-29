@@ -2,6 +2,18 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import gsap from 'gsap';
 
+import { auth } from './index.js';
+import { onAuthStateChanged } from 'firebase/auth';
+
+// if detected that the user is logged in then show the Go To Dashboard button.
+
+onAuthStateChanged(auth, (user) => { 
+    if (user) {
+        document.getElementById("login-button").style.display = "none";
+        document.getElementById("dashboard-button").style.display = "inline-block";
+    }
+});
+
 // import objects
 const calculatorUrl = new URL('../srcs/three_assets/calculator.glb', import.meta.url);
 const folderUrl = new URL('../srcs/three_assets/folder.glb', import.meta.url);
@@ -255,5 +267,4 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle.classList.toggle('active');
     });
 });
-
 

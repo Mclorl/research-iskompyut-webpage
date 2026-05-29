@@ -6,6 +6,8 @@
     <title>Iskompyut Dashboard</title>
     <link rel="stylesheet" href="../css_sources/dashboard.css">
     <link rel="icon" type="image/x-icon" href="/srcs/Logo.png">
+
+    <script src="/js_sources/dashboardSystem.js" type="module"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -24,7 +26,7 @@
             <ul class="nav-links">
                 <li><a href="#"><span>Add Course</span></a></li>
                 <li><a href="#"><span>Set Goals</span></a></li>
-                <li><a href="#"><span>Log out</span></a></li>
+                <li><a id="logout-button" href="javascript:void(0);"><span>Log out</span></a></li>
             </ul>
         </div>
     </nav>
@@ -34,7 +36,7 @@
             
             <div class="leftSideBar">
                 <div class="greetingsContainer">
-                    <h1>Welcome, <br>&ltName&gt!</h1>
+                    <h1>Welcome, <br><span id="student-name-id"></span></h1>
                 </div>
                 
                 <div class="card-container">
@@ -61,7 +63,7 @@
                 
                 <div class="dashboard-header">
                     <h3>My Courses</h3>
-                    <button class="add-course-btn">+ Add New Course</button>
+                    <button class="add-course-btn" onclick="window.location.href='./newCourse.html'">+ Add New Course</button>
                 </div>
 
                 <hr class="dashboard-divider">
@@ -144,5 +146,7 @@
 
         </div>
     </main>
+
+    
 </body>
 </html>

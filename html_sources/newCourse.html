@@ -6,6 +6,8 @@
     <title>New Course Add</title>
     <link rel="stylesheet" href="/css_sources/newCourse.css">
     <link rel="icon" type="image/x-icon" href="/srcs/Logo.png">
+
+    <script src="/js_sources/addNewCourseSystem.js" type="module"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -22,9 +24,9 @@
         
         <div class="nav-right">
             <ul class="nav-links">
-                <li><a href="#"><span>Dash Board</span></a></li>
+                <li><a href="./dashboard.html"><span>Dash Board</span></a></li>
                 <li><a href="#"><span>Set Goals</span></a></li>
-                <li><a href="#"><span>Log out</span></a></li>
+                <li><a id="logout-button" href="javascript:void(0);"><span>Log out</span></a></li>
             </ul>
         </div>
     </nav>
@@ -33,7 +35,7 @@
         <div class ="bgContainer">
             <div class = "leftSideBar">
                 <div class = "greetingsContainer">
-                    <h1>Welcome, <br>&ltName&gt!</h1>
+                    <h1>Welcome, <br><span id="student-name-id"></span></h1>
                 </div>
                 <div class = "formContainer">
                     <form>
@@ -174,5 +176,7 @@
             </div>
         </div>
     </main>
+
+    
 </body>
 </html>

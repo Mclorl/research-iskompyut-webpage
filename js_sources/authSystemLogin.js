@@ -1,5 +1,5 @@
 import { auth, formatUsernameToEmail } from "./index.js";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 
 document.addEventListener("DOMContentLoaded", () => {
     
@@ -30,7 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Success! Redirect user to dashboard
                 const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
                 const rootPath = repoPath.substring(0, repoPath.lastIndexOf('/')); 
-                window.location.href = `${rootPath}/index.html`; //placeholder dashboard
+                window.location.href = `${rootPath}/html_sources/dashboard.html`; // after the user logged in, go to the main dashboard.
+                // window.location.href = "./dashboard.html";
             } catch (error) {
                 switch (error.code) {
                     case "auth/invalid-credential":
@@ -43,3 +44,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById("login-username").style.display = "none";
+        document.getElementById("login-password").style.display = "none";
+        document.getElementById("login-error-message").style.display = "block";
+        document.getElementById("login-error-message").style.color = "#4ca081";
+        document.getElementById("login-error-message").innerHTML = "You Are Already Logged In!";
+
+        setTimeout(() => {
+            if (user) {
+                const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+                window.location.href = `${repoPath}/dashboard.html`;
+            }
+        }, 1500)
+    }
+})

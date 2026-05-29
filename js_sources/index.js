@@ -5,6 +5,7 @@ import { initializeApp } from "firebase/app";
 
 // imports
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,8 +21,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // code
+// initialize services from firebase
 
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 
 export function formatUsernameToEmail(username) {
     const cleanName = username.trim().replace(/\s+/g, '').toLowerCase();

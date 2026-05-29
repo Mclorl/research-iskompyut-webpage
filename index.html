@@ -42,8 +42,9 @@
                 <input type="search" placeholder="Search or Jump to...">
             </form>
 
-            <a href="./html_sources/login.html" class="login"><span>Log in</span></a>
-            <a href="./html_sources/signup.html" class="signup-btn"><span>Sign up</span></a>
+            <a href="./html_sources/login.html" id="login-button" class="login"><span>Log in</span></a>
+            <a href="./html_sources/dashboard.html" id="dashboard-button" class="signup-btn"><span>Enter To Dashboard</span></a>
+            <a href="./html_sources/signup.html" id="signup-button" class="signup-btn"><span>Sign up</span></a>
 
         </div>
 
@@ -193,6 +194,11 @@
 
         });
     </script>
+
+    <div style="display: none !important;"> <!--Don't mind this, this is just to render all the files that are not connected to the html paths so that parcel can render it-->
+        <a href="./html_sources/dashboard.html">Dashboard Link</a>
+        <a href="./html_sources/newCourse.html">Course Link</a>
+    </div>
 
 </body>
 </html>
