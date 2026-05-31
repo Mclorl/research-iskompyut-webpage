@@ -22,7 +22,7 @@ onAuthStateChanged(auth, async (user) => {
                     console.log ("Data Does Not Exist.");
                 }
 
-            } catch (error) {
+                } catch (error) {
                 console.error("Error fetching user document:", error);
             }
         }, 50);
@@ -53,5 +53,27 @@ document.addEventListener("DOMContentLoaded", () =>{
                 alert("Could not log out securely. Please try again.");
             }
         })
+    }
+
+    // Modal Interaction Handlers Only
+    const gwaTrigger = document.getElementById("check-gwa-trigger");
+    const gwaModal = document.getElementById("gwa-modal");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+
+    if (gwaTrigger && gwaModal && closeModalBtn) {
+        gwaTrigger.addEventListener("click", (e) => {
+            e.preventDefault();
+            gwaModal.classList.add("is-active");
+        });
+
+        closeModalBtn.addEventListener("click", () => {
+            gwaModal.classList.remove("is-active");
+        });
+
+        gwaModal.addEventListener("click", (e) => {
+            if (e.target === gwaModal) {
+                gwaModal.classList.remove("is-active");
+            }
+        });
     }
 });
