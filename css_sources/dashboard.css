@@ -387,3 +387,173 @@ main {
 .grade-highlight.text-default {
     color: #333333;
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-card {
+    background-color: #fff;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 1.5rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    transform: translateY(-30px);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-overlay.is-active .modal-card {
+    transform: translateY(0);
+}
+
+.modal-header {
+    background: linear-gradient(90deg, #ffae42 0%, #ff7f00 100%);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: white;
+}
+
+.settings-gear {
+    font-size: 1.4rem;
+    color: #fff;
+    opacity: 0.9;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.gwa-summary {
+    text-align: center;
+}
+
+.gwa-label {
+    color: #ff8000;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.gwa-number {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #444;
+    line-height: 1;
+}
+
+.grades-list-container {
+    background-color: white;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+.grades-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: scroll;
+    max-height: 180px;
+}
+
+.modal-list-divider {
+    margin: 0;
+    border: none;
+    height: 1px;
+    background-color: #e2e8f0;
+}
+
+.grade-item {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.grade-item:last-child {
+    border-bottom: none;
+}
+
+.item-prefix {
+    color: #94a3b8;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.modal-course-code {
+    color: #e65100;
+    font-weight: 600;
+    font-size: 1.15rem;
+    flex-grow: 1;
+}
+
+.grade-score {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.grade-score.green { color: #2e7d32; }
+.grade-score.orange { color: #f49223; }
+.grade-score.grey { color: #94a3b8; }
+
+.grades-list::-webkit-scrollbar {
+    width: 14px;
+}
+
+.grades-list::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 0 0.75rem 0.75rem 0;
+}
+
+.grades-list::-webkit-scrollbar-thumb {
+    background: #ff8000;
+    border-radius: 10px;
+    border: 4px solid #f8fafc;
+}
+
+.grades-list::-webkit-scrollbar-thumb:hover {
+    background: #d75e06;
+}

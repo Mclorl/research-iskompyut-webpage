@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iskompyut Dashboard</title>
     <link rel="stylesheet" href="../css_sources/dashboard.css">
-    <link rel="icon" type="image/x-icon" href="/srcs/Logo.png">
+    <link class="icon" type="image/x-icon" href="/srcs/Logo.png">
 
     <script src="/js_sources/dashboardSystem.js" type="module"></script>
 </head>
@@ -53,7 +53,7 @@
                         <h2>Your GWA</h2>
                         <div class="final-grade">1.25 (94%)</div>
                         <p class="status-text">President's Lister</p>
-                        <a href="#" class="action-link">Check your GWA here...</a>
+                        <a href="javascript:void(0);" id="check-gwa-trigger" class="action-link">Check your GWA here...</a>
                     </div>
                 </div>
 
@@ -147,6 +147,40 @@
         </div>
     </main>
 
-    
+    <div id="gwa-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="settings-gear">&#9881;</span>
+                <h3 class="modal-title">Grades</h3>
+                <button id="close-modal-btn" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="gwa-summary">
+                    <p class="gwa-label">Final GWA</p>
+                    <p class="gwa-number">2.0</p>
+                </div>
+                <div class="grades-list-container">
+                    <hr class="modal-list-divider">
+                    <ul class="grades-list">
+                        <li class="grade-item">
+                            <span class="item-prefix">> </span>
+                            <span class="modal-course-code">DS1</span>
+                            <span class="grade-score green">1.5</span>
+                        </li>
+                        <li class="grade-item">
+                            <span class="item-prefix">> </span>
+                            <span class="modal-course-code">ComProg</span>
+                            <span class="grade-score orange">2.5</span>
+                        </li>
+                        <li class="grade-item">
+                            <span class="item-prefix">> </span>
+                            <span class="modal-course-code">STS</span>
+                            <span class="grade-score grey">-</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
