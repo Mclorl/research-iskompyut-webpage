@@ -172,12 +172,13 @@ main {
 }
 
 .formContainer{
-    border-radius: 2.5rem;
-    padding-top: 2rem;
+    margin-top: 4rem;
+    border-radius: 1.5rem;
+    padding-top: 1.5rem;
     background: linear-gradient(90deg, #f9be50 0%, #f49223 100%);
 }
 
-.formContainer form{
+.aForm{
     padding: 1rem;
     display: flex;
     flex-direction: column;
@@ -188,11 +189,6 @@ main {
     border-radius: 1.5rem;
 }
 
-.greetingsContainer{
-    display: flex;
-    margin-left: 1rem;
-    color: #d75e06;
-}
 
 .formulaContainer h2{
     color: #d75e06; 
@@ -428,8 +424,8 @@ main {
 }
 
 .guideContainer{
-    padding-top: 2rem;
-    border-radius: 2.5rem;
+    border-radius: 1.5rem;
+    padding-top: 1.5rem;
     box-sizing: border-box;
     background: linear-gradient(90deg, #f9be50 0%, #f49223 100%);
 }
@@ -442,10 +438,12 @@ main {
     align-items: center;
     gap: 0.5rem;
     background-color: #ffffff;
+    padding: 1rem;
 }
 
 .guide h1{
     color:#d75e06; 
+    font-size: 1rem;
 }
 
 .guide p{
