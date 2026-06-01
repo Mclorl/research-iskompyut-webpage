@@ -76,4 +76,50 @@ document.addEventListener("DOMContentLoaded", () =>{
             }
         });
     }
+
+    // Modal Interaction Handlers Only (2)
+    const cardTriggers = document.querySelectorAll(".check-card-trigger");
+    const cardModal = document.getElementById("card-modal");
+    const closeModalBtn2 = document.getElementById("close-modal-btn2");
+    
+    if (cardModal && cardTriggers.length > 0 && closeModalBtn2) {
+
+    const modalTitle = cardModal.querySelector(".modal-title");
+    const modalCourseCode = cardModal.querySelector(".modal-course");
+    const modalProfessor = cardModal.querySelector("#professor");
+    const modalGrade = cardModal.querySelector("#gwa-number");
+
+        cardTriggers.forEach((trigger) => {
+            trigger.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                const course = trigger.dataset.course || "N/A";
+                const code = trigger.dataset.code || "N/A";
+                const professor = trigger.dataset.professor || "N/A";
+                const grade = trigger.dataset.grade || "N/A";
+
+                if (modalTitle) modalTitle.textContent = course;
+                if (modalCourseCode) modalCourseCode.textContent = code;
+                if (modalProfessor) modalProfessor.textContent = professor;
+                if (modalGrade) modalGrade.textContent = grade;
+
+                cardModal.classList.add("is-active");
+            });
+        });
+
+        /*cardTrigger.addEventListener("click", (e) => {
+            e.preventDefault();
+            cardModal.classList.add("is-active");
+        });*/
+
+        closeModalBtn2.addEventListener("click", () => {
+            cardModal.classList.remove("is-active");
+        });
+
+        cardModal.addEventListener("click", (e) => {
+            if (e.target === cardModal) {
+                cardModal.classList.remove("is-active");
+            }
+        });
+    }
 });
