@@ -390,5 +390,58 @@
             </div>
         </div>
     </div>
+
+<div id="goals-modal" class="goals-modal-overlay">
+    <div class="goals-modal-card">
+
+        <!-- Modal Top Accent -->
+        <div class="goals-modal-topbar"></div>
+
+        <!-- Modal Content -->
+        <div class="goals-modal-content">
+
+            <p class="goals-modal-label">Set preferred GWA</p>
+
+            <div class="goals-modal-value" id="goal-value-display">
+                2.5
+            </div>
+
+            <!-- Slider -->
+            <div class="goals-slider-wrapper">
+                <input
+                    type="range"
+                    id="goal-slider"
+                    class="goal-slider"
+                    min="1.00"
+                    max="4.00"
+                    step="0.25"
+                    value="2.50"
+                />
+            </div>
+
+            <!-- Buttons -->
+            <div class="goals-modal-actions">
+
+                <button
+                    type="button"
+                    class="goals-btn goals-save-btn"
+                    id="save-goal-btn"
+                >
+                    Save
+                </button>
+
+                <button
+                    type="button"
+                    class="goals-btn goals-cancel-btn"
+                    id="close-goals-modal"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
 </body>
 </html>
