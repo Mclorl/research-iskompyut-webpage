@@ -163,7 +163,7 @@ main {
 
 .mainContent{
     width: 60vw;
-    height: 100vh;
+    height: calc(100vh - 120px);
 }
 
 .rightSideBar{
@@ -226,8 +226,20 @@ main {
 .formula {
     display: flex;
     justify-content: center;
-    font-size: 0.8rem;
     font-style: italic;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #333333;
+    margin: 20px 0;
+    text-align: center;
+    overflow-x: auto; 
+    white-space: nowrap;
+    padding: 10px;
+}
+@media screen and (max-width: 600px) {
+    #minor-formula-p {
+        font-size: 0.8rem; 
+    }
 }
 
 .fraction {
@@ -252,8 +264,10 @@ main {
     flex-direction: column;
     padding: 1.5rem;
     box-sizing: border-box;
-    gap: 0.5rem;
+    gap: 1.5rem; 
     border-radius: 2rem;
+    height: auto; 
+    min-height: 780px;
 }
 
 .mainContainer h3{
@@ -341,20 +355,24 @@ main {
     width: 100%;
     background-color: white;
     gap: 1rem;
+    height: 420px; 
+    margin-top: 0.5rem;
+    align-items: flex-start;
 }
 
 .inputCard{
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 1rem 3rem 1rem 2rem;
+    padding: 1.5rem;
     width: 100%;
     background-color: white;
     border-radius: 1rem;
-    overflow-y: auto;
-    scrollbar-color: rgb(255, 157, 0) rgb(246, 246, 246);
-    height: 300px;
+    height: 100%;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    overflow-y: auto; 
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255, 157, 0) rgb(246, 246, 246);
 }
 
 .inputCard input{
@@ -468,4 +486,254 @@ main {
 .vidContainer video{
     width: 80%;
     border-radius: 1rem;
+}
+
+#warning-message-css {
+    margin-top: 5px;
+}
+
+#warning-message {
+    display: none;
+    color: rgb(189, 21, 21);
+}
+
+.editable-field-group input[type="text"],
+.editable-field-group .field-preview {
+    font-size: 14px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.5;
+    height: 32px;
+    margin: 0;
+    padding: 4px 8px;
+}
+
+.editable-field-group input[type="text"] {
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    flex-grow: 1;
+    max-width: 80%;
+}
+
+.editable-field-group .field-preview {
+    border: 1px solid transparent;
+    background: transparent;
+    flex-grow: 1;
+    max-width: 80%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editable-field-group {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    width: 100%;
+    height: 40px;
+    margin-top: 0.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.edit-field-btn {
+    background-color: transparent;
+    color: #f49223;
+    border: 1px solid #f49223;
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    
+    transition: all 0.25s ease-in-out;
+
+    margin-left: auto; 
+    align-self: center;
+}
+
+.edit-field-btn:hover {
+    background-color: #f49223;
+    color: white;
+    box-shadow: 0 2px 6px rgba(244, 146, 35, 0.3);
+    transform: translateY(-1px);
+}
+
+.edit-field-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.editable-field-group input[type="number"] {
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+}
+
+.percentage-field-group {
+    display: inline-flex !important;
+    align-items: center;
+    width: auto;
+}
+
+.percentage-field-group .field-preview {
+    max-width: 70px;
+    font-weight: bold;
+    color: #333;
+}
+
+.inputCard .editable-field-group input {
+    width: 70px !important;
+    display: inline-block;
+}
+
+
+.scoring-setup-group input[type="text"] {
+    width: 130px !important;
+    display: inline-block;
+}
+
+.score-input-pair input[type="number"] {
+    width: 45px !important;
+    height: 24px !important;
+    padding: 2px !important;
+    font-size: 0.8rem;
+    display: inline-block;
+}
+
+.sub-item-row {
+    border-bottom: 1px dashed #e0e0e0; 
+    padding-bottom: 12px; 
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-card {
+    background-color: #fff;
+    width: 90%;
+    max-width: 480px;
+    border-radius: 1.5rem;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    transform: translateY(-30px);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-overlay.is-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-overlay.is-active .modal-card {
+    transform: translateY(0);
+}
+
+.modal-header {
+    background: linear-gradient(90deg, #ffae42 0%, #ff7f00 100%);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.modal-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: white;
+}
+
+.close-modal {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.cancel-summary {
+    text-align: center;
+}
+
+.cancel-label {
+    color: #ff8000;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.cancel-number {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #444;
+    line-height: 1;
+}
+
+.mainButtonsCancel {
+    display: flex;
+    align-items: center; /*center vertically*/
+    justify-content: center; /*center horizontally*/
+    gap: 1rem;
+    margin-top: 25px;
+}
+
+.cancel-yes-button {
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    margin-top: .5rem;
+    padding: .4rem 2.5rem;
+    font-size: 16px;
+    transition-duration: .7s;
+    background: #ff8000;
+}
+
+.cancel-no-button {
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    margin-top: .5rem;
+    padding: .4rem 2.5rem;
+    font-size: 16px;
+    transition-duration: .7s;
+    background-color: #959191;
+}
+
+.cancel-yes-button:hover {
+    background-color: #ca5908;
+}
+
+.cancel-no-button:hover {
+    background-color: #514e4e;
 }

@@ -117,10 +117,10 @@ main {
 
 /* Left Side Bar Styling */
 .leftSideBar {
-    width: 25vw;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    row-gap: 20px;
+
 }
 
 .greetingsContainer {
@@ -147,6 +147,9 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
 }
 
 .card-content h2 {
@@ -701,16 +704,18 @@ a.check-card-trigger:active {
 
 .course-summary {
     display: flex;
-    justify-content: flex-end;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid #f1f5f9;
+    justify-content: space-between; 
+    align-items: center;
+    gap: 1.5rem;
+    padding: 0.5rem 0;
 }
 
 .prof-grade-section {
+    flex-shrink: 0;
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
 }
 
 .prof-name {
@@ -755,7 +760,7 @@ a.check-card-trigger:active {
     overflow-x: auto;
     border: 1px solid #e2e8f0;
     border-radius: 0.5rem;
-    background-color: #ffffff;
+    background-color: #F8FAFC;
 }
 
 .grades-table {
@@ -815,6 +820,58 @@ a.check-card-trigger:active {
     .course-summary {
         justify-content: center;
     }
+}
+
+.no-courses {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem 1rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #888888;
+    margin: 0 auto;
+}
+
+#course-formula-modal {
+    flex: 1;
+    font-size: 0.85rem;
+    color: #666666;
+    text-align: left;
+    max-width: 60%;
+}
+
+#course-formula-modal {
+    overflow-x: visible;
+    white-space: normal;
+    word-break: break-word;
+}
+
+#course-formula-modal mjx-container {
+    max-width: 100% !important;
+    overflow-x: visible !important;
+}
+
+#dynamic-sections-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 24px; 
+}
+
+.dynamic-components-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+
+.component-item-card {
+    flex: 0 0 calc(50% - 8px);
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    background: #fff;
+    box-sizing: border-box;
 }
 
 .goals-modal-overlay {

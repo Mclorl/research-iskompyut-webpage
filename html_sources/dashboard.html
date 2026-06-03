@@ -8,6 +8,16 @@
     <link rel="icon" type="image/x-icon" href="/srcs/Logo.png">
 
     <script src="/js_sources/dashboardSystem.js" type="module"></script>
+
+    <script>
+    window.MathJax = {
+        tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['$$', '$$']]
+        }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -24,7 +34,6 @@
         
         <div class="nav-right">
             <ul class="nav-links">
-                <li><a href="#"><span>Add Course</span></a></li>
                 <li><a href="#"><span>Set Goals</span></a></li>
                 <li><a id="logout-button" href="javascript:void(0);"><span>Log out</span></a></li>
             </ul>
@@ -60,7 +69,6 @@
             </div>
 
             <div class="mainContent">
-                
                 <div class="dashboard-header">
                     <h3>My Courses</h3>
                     <button class="add-course-btn" onclick="window.location.href='./newCourse.html'">+ Add New Course</button>
@@ -87,129 +95,7 @@
 
                 <hr class="dashboard-divider">
 
-                <div class="courses-grid">
-    
-                    <a href="javascript:void(0);"
-                        class="check-card-trigger"
-                        data-course="Computer Programming 02"
-                        data-code="COMP 004"
-                        data-professor="Sir Ferdie"
-                        data-grade="3.50 (70%)">
-                        <div class="course-card"> 
-                            <div class="course-top">
-                                <h4 class="course-title">Computer Programming 02</h4>
-                            </div>
-                                <div class="grade-highlight text-green">3.50 (70%)</div>
-                            <div class="course-bottom">
-                                <div class="course-info">
-                                    <span class="course-code">COMP 004</span>
-                                    <p class="professor">Sir Ferdie</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="javascript:void(0);"
-                        class="check-card-trigger"
-                        data-course="Computer Programming 02"
-                        data-code="COMP 004"
-                        data-professor="Sir Ferdie"
-                        data-grade="3.50 (70%)">
-                        <div class="course-card"> 
-                            <div class="course-top">
-                                <h4 class="course-title">Computer Programming 02</h4>
-                            </div>
-                                <div class="grade-highlight text-green">3.50 (70%)</div>
-                            <div class="course-bottom">
-                                <div class="course-info">
-                                    <span class="course-code">COMP 004</span>
-                                    <p class="professor">Sir Ferdie</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="javascript:void(0);"
-                        class="check-card-trigger"
-                        data-course="Computer Programming 02"
-                        data-code="COMP 004"
-                        data-professor="Sir Ferdie"
-                        data-grade="3.50 (70%)">
-                        <div class="course-card"> 
-                            <div class="course-top">
-                                <h4 class="course-title">Computer Programming 02</h4>
-                            </div>
-                                <div class="grade-highlight text-green">3.50 (70%)</div>
-                            <div class="course-bottom">
-                                <div class="course-info">
-                                    <span class="course-code">COMP 004</span>
-                                    <p class="professor">Sir Ferdie</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="javascript:void(0);"
-                        class="check-card-trigger"
-                        data-course="Discrete Structures 1"
-                        data-code="COMP 004"
-                        data-professor="Sir Ferdie"
-                        data-grade="3.50 (70%)">
-                        <div class="course-card">
-                            <div class="course-top">
-                                <h4 class="course-title">Discrete Structures 1</h4>
-                            </div>
-                                <div class="grade-highlight text-orange">3.50 (70%)</div>
-                            <div class="course-bottom">
-                                <div class="course-info">
-                                    <span class="course-code">COMP 004</span>
-                                    <p class="professor">Sir Ferdie</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="javascript:void(0);"
-                        class="check-card-trigger"
-                        data-course="Differential Calculus"
-                        data-code="COMP 004"
-                        data-professor="Sir Ferdie"
-                        data-grade="3.50 (70%)">
-                        <div class="course-card">
-                            <div class="course-top">
-                                <h4 class="course-title">Differential Calculus</h4>
-                            </div>
-                                <div class="grade-highlight text-default">3.50 (70%)</div>
-                            <div class="course-bottom">
-                                <div class="course-info">
-                                    <span class="course-code">COMP 004</span>
-                                    <p class="professor">Sir Ferdie</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                    <a href="javascript:void(0);"
-                        class="check-card-trigger"
-                        data-course="STS"
-                        data-code="COMP 004"
-                        data-professor="Sir Ferdie"
-                        data-grade="3.50 (70%)">
-                        <div class="course-card">
-                            <div class="course-top">
-                                <h4 class="course-title">STS</h4>
-                            </div>
-                                <div class="grade-highlight text-default">3.50 (70%)</div>
-                            <div class="course-bottom">
-                                <div class="course-info">
-                                    <span class="course-code">COMP 004</span>
-                                    <p class="professor">Sir Ferdie</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-
-                </div>
+                <div class="courses-grid" id="courses-grid-container"></div>
             </div>
 
         </div>
@@ -267,181 +153,72 @@
             </div>
 
             <div class="modal-body2">
-
                 <div class="course-summary">
+                    <div id="course-formula-modal"></div>
+
                     <div class="prof-grade-section">
-                        <span class="prof-name" id="modal-prof-name">Sir Ferdie</span>
+                        <span class="prof-name" id="modal-prof-name"></span>
                         <span class="current-score" id="modal-current-score">3.50 (70%)</span>
                     </div>
                 </div>
 
-                <div class="section-wrapper">
-                    <div class="class-standing-header">
-                        CLASS STANDING (??%)
-                    </div>
+                <div id="dynamic-sections-container"></div>
+            </div>
 
-                    <hr class="dashboard-divider">
+        </div>
+    </div>
 
-                    <div class="breakdown-container nested-container">
+    <div id="goals-modal" class="goals-modal-overlay">
+        <div class="goals-modal-card">
 
-                        <div class="component-section">
-                            <h4 class="component-title">Assignment (??%)</h4>
+            <!-- Modal Top Accent -->
+            <div class="goals-modal-topbar"></div>
 
-                            <div class="table-wrapper">
-                                <table class="grades-table">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Score</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="assignments-table-body">
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
+            <!-- Modal Content -->
+            <div class="goals-modal-content">
 
-                            <div class="modal-footer-grades">
-                                <div>Total Grade: <span class="bold">??%</span></div>
-                            </div>
-                        </div>
+                <p class="goals-modal-label">Set preferred GWA</p>
 
-                        <div class="component-section">
-                            <h4 class="component-title">Quizzes (??%)</h4>
+                <div class="goals-modal-value" id="goal-value-display">
+                    2.5
+                </div>
 
-                            <div class="table-wrapper">
-                                <table class="grades-table">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Score</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="quizzes-table-body">
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Name</td><td>-</td><td>-</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                <!-- Slider -->
+                <div class="goals-slider-wrapper">
+                    <input
+                        type="range"
+                        id="goal-slider"
+                        class="goal-slider"
+                        min="1.00"
+                        max="4.00"
+                        step="0.25"
+                        value="2.50"
+                    />
+                </div>
 
-                            <div class="modal-footer-grades">
-                                <div>Total Grade: <span class="bold">??%</span></div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- Buttons -->
+                <div class="goals-modal-actions">
 
-                </div> 
-                
-                <div class="section-wrapper">
-                    <div class="major-exams-header">
-                        MAJOR EXAMS (??%)
-                    </div>
+                    <button
+                        type="button"
+                        class="goals-btn goals-save-btn"
+                        id="save-goal-btn"
+                    >
+                        Save
+                    </button>
 
-                    <hr class="dashboard-divider">
-                    
-                    <div class="breakdown-container nested-container">
-                        <div class="component-section full-width-section">
-                            <div class="table-wrapper">
-                                <table class="grades-table">
-                                    <thead>
-                                        <tr>
-                                            <th></th>
-                                            <th>Score</th>
-                                            <th>Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="exams-table-body">
-                                        <tr><td>Midterm Exam</td><td>-</td><td>-</td></tr>
-                                        <tr><td>Final Exam</td><td>-</td><td>-</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    <button
+                        type="button"
+                        class="goals-btn goals-cancel-btn"
+                        id="close-goals-modal"
+                    >
+                        Cancel
+                    </button>
 
-                    <div class="modal-footer-grades">
-                        <div>Total Grade: <span class="bold">??%</span></div>
-                    </div>
                 </div>
 
             </div>
         </div>
     </div>
-
-<div id="goals-modal" class="goals-modal-overlay">
-    <div class="goals-modal-card">
-
-        <!-- Modal Top Accent -->
-        <div class="goals-modal-topbar"></div>
-
-        <!-- Modal Content -->
-        <div class="goals-modal-content">
-
-            <p class="goals-modal-label">Set preferred GWA</p>
-
-            <div class="goals-modal-value" id="goal-value-display">
-                2.5
-            </div>
-
-            <!-- Slider -->
-            <div class="goals-slider-wrapper">
-                <input
-                    type="range"
-                    id="goal-slider"
-                    class="goal-slider"
-                    min="1.00"
-                    max="4.00"
-                    step="0.25"
-                    value="2.50"
-                />
-            </div>
-
-            <!-- Buttons -->
-            <div class="goals-modal-actions">
-
-                <button
-                    type="button"
-                    class="goals-btn goals-save-btn"
-                    id="save-goal-btn"
-                >
-                    Save
-                </button>
-
-                <button
-                    type="button"
-                    class="goals-btn goals-cancel-btn"
-                    id="close-goals-modal"
-                >
-                    Cancel
-                </button>
-
-            </div>
-
-        </div>
-    </div>
-</div>
 </body>
 </html>

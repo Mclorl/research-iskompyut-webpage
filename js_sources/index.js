@@ -24,7 +24,7 @@ const app = initializeApp(firebaseConfig);
 // initialize services from firebase
 
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+export const db = getFirestore(app); // connecting to the firestore database project.
 
 export function formatUsernameToEmail(username) {
     const cleanName = username.trim().replace(/\s+/g, '').toLowerCase();

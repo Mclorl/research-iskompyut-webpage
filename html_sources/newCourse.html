@@ -8,6 +8,26 @@
     <link rel="icon" type="image/x-icon" href="/srcs/Logo.png">
 
     <script src="/js_sources/addNewCourseSystem.js" type="module"></script>
+
+    
+
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id="MathJax-script" async></script>
+    <script>
+        window.MathJax = {
+            tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            chtml: {
+            scale: 1,
+            minScale: 0.2
+            },
+            options: {
+            renderActions: {
+                assistiveMml: [] 
+            }
+            }
+        };
+    </script>
 </head>
 <body>
     <nav class="navbar">
@@ -24,7 +44,6 @@
         
         <div class="nav-right">
             <ul class="nav-links">
-                <li><a href="./dashboard.html"><span>Dash Board</span></a></li>
                 <li><a href="#"><span>Set Goals</span></a></li>
                 <li><a id="logout-button" href="javascript:void(0);"><span>Log out</span></a></li>
             </ul>
@@ -38,42 +57,19 @@
                     <div class = "aForm">
                         <div class = "formulaContainer">
                             <h2>Minor Subject</h2>
-                            <p class="formula">
-                                (Class Standard &times;
-                                <span class="fraction">
-                                    <span>70</span>
-                                    <span class="bottom">100</span>
-                                </span>)
-                                &plus;
-                                 (Exam &times;
-                                <span class="fraction">
-                                    <span>30</span>
-                                    <span class="bottom">100</span>
-                                </span>)
-                            </p>
+                            <p id="minor-formula-p" class="formula"></p> <!--FORMULA MINOR CHOICE-->
                             <button id = "minorFormula" class = "formulaBtn">Select Formula</button>
                         </div>
                         <div class = "formulaContainer">
                             <h2>Major Subject</h2>
-                            <p class="formula">
-                                (Class Standard &times;
-                                <span class="fraction">
-                                    <span>60</span>
-                                    <span class="bottom">100</span>
-                                </span>)
-                                &plus;
-                                 (Exam &times;
-                                <span class="fraction">
-                                    <span>40</span>
-                                    <span class="bottom">100</span>
-                                </span>)
-                            </p>
+                            <p id="major-formula-p" class="formula"></p> <!--FORMULA MAJOR CHOICE-->
                             <button id = "majorFormula" class = "formulaBtn">Select Formula</button>
                         </div>
                         <div class = "formulaContainer">
                             <h2>Customized</h2>
                             <p>Type in your formula</p>
                             <input type="text" id="customized-formula" placeholder="Enter your formula">
+                            <p id="custom-formula-p" class="formula">Your formula will show up here.</p> <!--FORMULA CUSTOM CHOICE-->
                             <button type = "submit" id = "customFormula" class = "formulaBtn">Select Formula</button>
                         </div>
                     </div>
@@ -83,80 +79,49 @@
             <div class = "mainContainer">
                 <h3>Add New Course</h3>
                 <hr>
-                <div class = "courseInfo">
-                    <div class = "courseInfoA">
+                <div class="courseInfo">
+                    <div class="courseInfoA">
                         <h5>Course Name</h5>
-                        <input type="text" id="course-name" placeholder="Ex. Discrete Structures 1">
+                        <div class="editable-field-group">
+                            <input type="text" id="course-name" placeholder="Ex. Discrete Structures 1">
+                            <p id="course-name-preview" class="field-preview" style="display: none;"></p>
+                            <button class="edit-field-btn" style="display: none;">Edit</button>
+                        </div>
+
                         <h5>Instructor</h5>
-                        <input type="text" id="prof-name" placeholder="Ex. Mrs. Kanigan">
+                        <div class="editable-field-group">
+                            <input type="text" id="prof-name" placeholder="Ex. Mrs. Kanigan">
+                            <p id="prof-name-preview" class="field-preview" style="display: none;"></p>
+                            <button class="edit-field-btn" style="display: none;">Edit</button>
+                        </div>
                     </div>
-                    <div class = "courseInfoB">
+                    
+                    <div class="courseInfoB">
                         <h5>Course Code</h5>
-                        <input type="text" id="course-code" placeholder="Ex. COOMP 04">
+                        <div class="editable-field-group">
+                            <input type="text" id="course-code" placeholder="Ex. COMP 04">
+                            <p id="course-code-preview" class="field-preview" style="display: none;"></p>
+                            <button class="edit-field-btn" style="display: none;">Edit</button>
+                        </div>
+                        
                         <h5>Formula Chosen: </h5>
-                        <p>(Select formula from left side bar)</p>
-                        <p class="showcasedFormula">
-                            (Class Standard &times;
-                            <span class="showcaseFraction">
-                                <span>??</span>
-                                <span class="bottom">100</span>
-                            </span>)
-                            &plus;
-                             (Exam &times;
-                            <span class="showcaseFraction">
-                                <span>??</span>
-                                <span class="bottom">100</span>
-                            </span>)
-                        </p>
+                        <p style="font-size: 0.75rem; margin-bottom: 4px;">(Select formula from left side bar)</p>
+                        <p id="chosen-formula" class="showcasedFormula"></p>
                     </div>
                 </div>
-                <div class = "inputGrades">
+                <div id="input-grades-card" class = "inputGrades">
+                    <!--
                     <div class = "inputCard">
-                        <span>
-                            Percentage Distribution &ltPlaceholder (%??)&gt
-                        </span>
-                        <div class = "inputDropDown">
-                            <form>
-                                <select name="components" id="components">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                </select>
-                            </form>
-                            <span>Note: no. of components</span>
-                        </div>
-                        <input type="text" id="component-name" placeholder="Component name(Assignments, Quiz, Recitation)">
-                        <div class = "inputDropDown">
-                            <form>
-                                <select name="components" id="components">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                </select>
-                            </form>
-                            <span>Note: no. of &ltAssignments, etc.&gt</span>
-                        </div>
-                        <input type="text" id="component-weight" placeholder="Percentage of components (total should be ??%)">
-                        <div class = "inputDropDown">
-                            <form>
-                                <select name="components" id="components">
-                                <option value="1">1</option>
-                                <option value="2">2</option>
-                                <option value="3">3</option>
-                                <option value="4">4</option>
-                                </select>
-                            </form>
-                            <input type="number" id="score" placeholder="Score">
-                            <input type="number" id="total" placeholder="Total">
-                        </div>
+                        
                     </div>
+                    -->
+                    
                 </div>
                 <div class = "mainButtons">
-                    <button id = "saveCourse" class = "saveBtn">Save Course</button>
-                    <button id = "cancelCourse" class = "cancelBtn">Cancel</button>
+                    <button id="saveCourse" class="saveBtn">Save Course</button>
+                    <button id="cancelCourse" class="cancelBtn">Cancel</button>
                 </div>
+                <p id="warning-message-css"><span id="warning-message"></span></p>
             </div>
         </div>
             <div class = "rightSideBar">
@@ -174,6 +139,22 @@
         </div>
     </main>
 
-    
+    <div id="cancel-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Cancel the course?</h3>
+                <button id="close-modal-btn" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cancel-summary">
+                    <p class="cancel-label">Are you sure you want to cancel?</p>
+                    <div class="mainButtonsCancel">
+                        <button id="cancel-yes-button-ID" class="cancel-yes-button">Yes</button>
+                        <button id="cancel-no-button-ID" class="cancel-no-button">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

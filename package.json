@@ -6,10 +6,19 @@
   "dependencies": {
     "firebase": "^12.14.0",
     "gsap": "^3.15.0",
+    "mathjs": "^15.2.0",
     "three": "^0.184.0"
   },
   "scripts": {
     "dev": "parcel index.html html_sources/*.html",
     "build": "parcel build index.html html_sources/*.html --public-url /research-iskompyut-webpage/"
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.1": true,
+    "@parcel/watcher@2.5.6": true,
+    "@swc/core@1.15.33": true,
+    "lmdb@2.8.5": true,
+    "msgpackr-extract@3.0.3": true,
+    "protobufjs@7.6.1": true
   }
 }
