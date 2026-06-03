@@ -122,4 +122,137 @@ document.addEventListener("DOMContentLoaded", () =>{
             }
         });
     }
+
+    // Trigger Elements
+    const setGoalsTriggers = [
+        ...document.querySelectorAll("a"),
+        ...document.querySelectorAll("button"),
+        ...document.querySelectorAll("*")
+    ].filter((element) => {
+        const text = element.textContent?.trim();
+
+        return (
+            text === "Set Goals" ||
+            text === "Change your goal here..."
+        );
+    });
+
+    // Modal Elements
+    const goalsModal = document.getElementById("goals-modal");
+    const closeGoalsModalBtn = document.getElementById("close-goals-modal");
+    const goalSlider = document.getElementById("goal-slider");
+    const goalValueDisplay = document.getElementById("goal-value-display");
+    const saveGoalBtn = document.getElementById("save-goal-btn");
+
+    // Safety Check
+    if (
+        goalsModal &&
+        closeGoalsModalBtn &&
+        goalSlider &&
+        goalValueDisplay
+    ) {
+
+        /* Open Modal */
+        setGoalsTriggers.forEach((trigger) => {
+            trigger.addEventListener("click", (e) => {
+                e.preventDefault();
+
+                goalsModal.classList.add("active");
+            });
+        });
+
+        /* Close Modal */
+        const closeGoalsModal = () => {
+            goalsModal.classList.remove("active");
+        };
+
+        closeGoalsModalBtn.addEventListener("click", closeGoalsModal);
+
+        /* Close when clicking outside card */
+        goalsModal.addEventListener("click", (e) => {
+            if (e.target === goalsModal) {
+                closeGoalsModal();
+            }
+        });
+
+        /* ESC key close */
+        document.addEventListener("keydown", (e) => {
+            if (
+                e.key === "Escape" &&
+                goalsModal.classList.contains("active")
+            ) {
+                closeGoalsModal();
+            }
+        });
+
+        /* Live Slider Value Update */
+        goalSlider.addEventListener("input", () => {
+            goalValueDisplay.textContent = goalSlider.value;
+        });
+
+        /* Save Button */
+        saveGoalBtn.addEventListener("click", () => {
+
+    // Get slider value
+    const selectedGoal = parseFloat(goalSlider.value);
+
+    // Format to 2 decimal places
+    const formattedGoal = selectedGoal.toFixed(2);
+    const goalCard = document.querySelector(".card-container");
+
+    if (goalCard) {
+
+        const finalGradeElement =
+            goalCard.querySelector(".final-grade");
+
+        const alertTextElement =
+            goalCard.querySelector(".alert-text");
+
+        if (finalGradeElement) {
+
+            const percentageEquivalent = Math.max(
+                65,
+                Math.round(100 - ((selectedGoal - 1) * 12))
+            );
+
+            // Update UI
+            finalGradeElement.textContent =
+                `${formattedGoal} (${percentageEquivalent}%)`;
+        }
+
+        if (alertTextElement) {
+
+            if (selectedGoal <= 1.75) {
+
+                alertTextElement.textContent =
+                    "ACADEMIC EXCELLENCE TARGET";
+
+                alertTextElement.style.color = "#2e7d32";
+
+            } else if (selectedGoal <= 2.50) {
+
+                alertTextElement.textContent =
+                    "YOU ARE ON TRACK";
+
+                alertTextElement.style.color = "#f49223";
+
+            } else {
+
+                alertTextElement.textContent =
+                    "YOU HAVE NOT REACHED YOUR GOAL";
+
+                alertTextElement.style.color = "#cc0000";
+            }
+        }
+    }
+
+    console.log(
+        "Preferred Goal Saved:",
+        formattedGoal
+    );
+
+    // Close modal after update
+    closeGoalsModal();
+});
+    }
 });
