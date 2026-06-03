@@ -79,8 +79,8 @@
 }
 
 .toggle ul {
+    width: 150%;
     list-style: none;
-    margin-top: 12px;
     display: none;
     color:rgb(128, 64, 0);
 }
@@ -95,6 +95,7 @@
 
 .toggle ul li {
     margin: 6px 0;
+    margin-top: 0.5rem;
     font-weight: bold;
 }
 

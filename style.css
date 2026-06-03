@@ -568,8 +568,8 @@ body {
 }
 
 .guide p {
-    font-size: 1.25rem;
     text-align: justify;
+    font-size: 1.25rem;
     margin-bottom: 1rem;
     padding-bottom: 0;
     order: 1;
