@@ -214,8 +214,6 @@ main {
     background: #ca5908;
 }
 
-
-
 .formContainer input{
     padding: 0.5rem;
     margin-top: 0.25rem;
@@ -465,14 +463,16 @@ main {
 }
 
 .guide p{
+    text-align: center;
     font-size: 1.25rem;
     margin-bottom: 0.5rem;
 }
 
-.guide h4{
-    margin: 1rem;
+.guide span{
+    padding-top: 1rem;
+    text-align: justify;
     font-size: 1rem;
-    padding-bottom: 2rem;
+    padding-bottom: 1rem;
 }
 
 .vidContainer{
