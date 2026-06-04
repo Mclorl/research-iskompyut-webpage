@@ -134,10 +134,13 @@ main {
 }
 
 .card-container {
+    width: 100%;
+    max-width: 280px;
     border-radius: 1.5rem;
     padding-top: 1.5rem;
     background: linear-gradient(90deg, #f9be50 0%, #f49223 100%);
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    box-sizing: border-box;
 }
 
 .card-content {
@@ -148,7 +151,7 @@ main {
     flex-direction: column;
     gap: 0.5rem;
     width: 100%;
-    max-width: 450px;
+    box-sizing: border-box;
     margin: 0 auto;
 }
 
