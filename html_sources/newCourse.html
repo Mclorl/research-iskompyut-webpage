@@ -44,6 +44,7 @@
         
         <div class="nav-right">
             <ul class="nav-links">
+                <li><a id="dashboard" href="#"><span>Dashboard</span></a></li>
                 <li><a href="#"><span>Set Goals</span></a></li>
                 <li><a id="logout-button" href="javascript:void(0);"><span>Log out</span></a></li>
             </ul>
@@ -103,11 +104,18 @@
                             <p id="course-code-preview" class="field-preview" style="display: none;"></p>
                             <button class="edit-field-btn" style="display: none;">Edit</button>
                         </div>
-                        
-                        <h5>Formula Chosen: </h5>
-                        <p style="font-size: 0.75rem; margin-bottom: 4px;">(Select formula from left side bar)</p>
-                        <p id="chosen-formula" class="showcasedFormula"></p>
+                        <h5>Credit Units</h5>
+                        <div class="editable-field-group">
+                            <input type="text" id="credit-units" placeholder="Ex. 3.0">
+                            <p id="credit-units-preview" class="field-preview" style="display: none;"></p>
+                            <button class="edit-field-btn" style="display: none;">Edit</button>
+                        </div>
                     </div>
+                </div>
+                <div class="formulaChosen">
+                    <h5>Formula Chosen: </h5>
+                    <p style="font-size: 0.75rem; margin-bottom: 4px;">(Select formula from left side bar)</p>
+                    <p id="chosen-formula" class="showcasedFormula"></p>
                 </div>
                 <div id="input-grades-card" class = "inputGrades">
                     <!--
@@ -152,6 +160,24 @@
                     <div class="mainButtonsCancel">
                         <button id="cancel-yes-button-ID" class="cancel-yes-button">Yes</button>
                         <button id="cancel-no-button-ID" class="cancel-no-button">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Move to Dashboard?</h3>
+                <button id="db-modal-btn" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cancel-summary">
+                    <p class="cancel-label">Moving will undo all of your current progress, are you sure you want to move to the dashboard?</p>
+                    <div class="mainButtonsCancel">
+                        <button id="dashboard-yes-button-ID" class="cancel-yes-button">Yes</button>
+                        <button id="dashboard-no-button-ID" class="cancel-no-button">No</button>
                     </div>
                 </div>
             </div>

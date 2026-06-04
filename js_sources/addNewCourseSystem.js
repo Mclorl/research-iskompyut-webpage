@@ -25,11 +25,17 @@ const minorFormulaButtonID = document.getElementById("minorFormula");
 const majorFormulaButtonID = document.getElementById("majorFormula");
 const customFormulaButtonID = document.getElementById("customFormula");
 const cancelCourseButtonID = document.getElementById("cancelCourse");
+const dashboardLinkId = document.getElementById("dashboard");
 const closeModalBtn = document.getElementById("close-modal-btn");
+const dashboardModalBtn = document.getElementById("db-modal-btn");
 const closeButtonConfirmationYesID = document.getElementById("cancel-yes-button-ID");
 const closeButtonConfirmationNoID = document.getElementById("cancel-no-button-ID");
 
+const dashboardButtonConfirmationYesID = document.getElementById("dashboard-yes-button-ID");
+const dashboardButtonConfirmationNoID = document.getElementById("dashboard-no-button-ID");
+
 const cancelModalID = document.getElementById("cancel-modal");
+const dashboardModalID = document.getElementById("dashboard-modal");
 
 // input grades div
 const inputGradesCardID = document.getElementById("input-grades-card");
@@ -585,6 +591,25 @@ document.addEventListener("DOMContentLoaded", () =>{
         });
     }
 
+    
+    if (dashboardLinkId && dashboardModalID && dashboardModalBtn) {
+        dashboardLinkId.addEventListener("click", (e) => {
+            e.preventDefault();
+            dashboardModalID.classList.add("is-active");
+        });
+
+        dashboardModalBtn.addEventListener("click", () => {
+            dashboardModalID.classList.remove("is-active");
+        });
+
+        dashboardModalID.addEventListener("click", (e) => {
+            if (e.target === dashboardModalID) {
+                dashboardModalID.classList.remove("is-active");
+            }
+        });
+    }
+    
+
     if (closeButtonConfirmationYesID && closeButtonConfirmationNoID) {
         closeButtonConfirmationYesID.addEventListener("click", function() {
             const repoPath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
@@ -594,6 +619,19 @@ document.addEventListener("DOMContentLoaded", () =>{
         closeButtonConfirmationNoID.addEventListener("click", () => {
             cancelModalID.classList.remove("is-active");
         });
+
+    }
+
+    if (dashboardButtonConfirmationNoID && dashboardButtonConfirmationYesID) {
+
+        dashboardButtonConfirmationYesID.addEventListener("click", () => {
+            window.location.href = "./dashboard.html";
+        });
+
+        dashboardButtonConfirmationNoID.addEventListener("click", () => {
+            dashboardModalID.classList.remove("is-active");
+        });
+
     }
     
 
