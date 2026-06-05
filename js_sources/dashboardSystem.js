@@ -8,6 +8,11 @@ const studentNameHtml = document.getElementById("student-name-id");
 const coursesGridContainer = document.getElementById("courses-grid-container");
 const alertBannersContainer = document.querySelector(".alert-banners");
 
+const confirmDeleteCourseModalID = document.getElementById("confirm-delete-modal");
+const confirmDeleteCourseModalCancelButtonID = document.getElementById("close-modal-btn-delete-course");
+const confirmDeleteYesButtonID = document.getElementById("confirm-delete-yes-button-ID");
+const confirmDeleteNoButtonID = document.getElementById("confirm-delete-no-button-ID");
+
 const styleToken = document.createElement("style");
 styleToken.textContent = `
     .inline-edit-row-btn {
@@ -120,6 +125,8 @@ let activeDocId = null;
 let localComponentsDistribution = {};
 let localBackupDistribution = {};
 let isEditMode = false;
+
+let localCachedCoursesList = [];
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -328,6 +335,8 @@ async function fetchAndRenderCourses(uid) {
             return dateA - dateB; 
         });
 
+        localCachedCoursesList = coursesList;
+
         let gridHTML = "";
         
         for (let courseData of coursesList) {
@@ -340,7 +349,7 @@ async function fetchAndRenderCourses(uid) {
             const componentsDistribution = courseData.componentsDistribution || {};
             
             const analysis = calculateCourseGradeMetrics(formula, componentsDistribution);
-            const finalGrade = formula ? `${analysis.finalGrade}%` : "-";
+            const finalGrade = formula ? analysis.finalGrade : 0;
 
             if (analysis.passPredictions && analysis.passPredictions.length > 0) {
                 analysis.passPredictions.forEach(pred => {
@@ -365,7 +374,7 @@ async function fetchAndRenderCourses(uid) {
                     data-code="${courseCode}"
                     data-id="${courseData.id}"
                     data-professor="${professor}"
-                    data-grade="${finalGrade}"
+                    data-grade="${determinePUPStatus(finalGrade).scale}"
                     data-units="${units}"
                     data-formula="${encodeURIComponent(formula)}"
                     data-distribution="${encodeURIComponent(componentsDistributionStr)}">
@@ -373,7 +382,7 @@ async function fetchAndRenderCourses(uid) {
                         <div class="course-top">
                             <h4 class="course-title">${courseName}</h4>
                         </div>
-                        <div class="grade-highlight text-green">${finalGrade}</div>
+                        <div class="grade-highlight text-green">${finalGrade}%</div>
                         <div class="course-bottom">
                             <div class="course-info" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
                                 <div>
@@ -437,6 +446,22 @@ async function fetchAndRenderCourses(uid) {
     }
 }
 
+async function confirmDeleteCard(confirmation) {
+    const user = auth.currentUser;
+    if (!user || !activeDocId) return;
+
+    if (confirmation) {
+        try {
+            const targetDocRef = doc(db, "users", user.uid, "courses", activeDocId);
+            await deleteDoc(targetDocRef);
+            window.location.reload();
+        } catch (err) {
+            console.error("Error attempting to delete firestore record:", err);
+            alert("An error occurred while deleting the course from the database.");
+        }
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const cardModal = document.getElementById("card-modal");
     const dynamicContainer = document.getElementById("dynamic-sections-container");
@@ -450,23 +475,40 @@ document.addEventListener("DOMContentLoaded", () => {
             structuralIconElement.title = "Delete this course";
             
             structuralIconElement.addEventListener("click", async (e) => {
+                let confirmationDelete = false;
+
                 e.preventDefault();
                 const user = auth.currentUser;
                 if (!user || !activeDocId) return;
 
-                const userConfirmation = confirm(`Are you sure you want to completely delete this course from your profile? This cannot be undone.`);
-                if (userConfirmation) {
-                    try {
-                        const targetDocRef = doc(db, "users", user.uid, "courses", activeDocId);
-                        await deleteDoc(targetDocRef);
-                        alert("Course deleted successfully.");
-                        cardModal.classList.remove("is-active");
-                        window.location.reload();
-                    } catch (err) {
-                        console.error("Error attempting to delete firestore record:", err);
-                        alert("An error occurred while deleting the course from the database.");
-                    }
+                if (confirmDeleteCourseModalCancelButtonID && confirmDeleteYesButtonID && confirmDeleteNoButtonID && confirmDeleteCourseModalID) {
+                    e.preventDefault();
+                    confirmDeleteCourseModalID.classList.add("is-active");
+
+                    confirmDeleteNoButtonID.addEventListener("click", () => {
+                        confirmDeleteCourseModalID.classList.remove("is-active");
+                    });
+
+                    confirmDeleteCourseModalID.addEventListener("click", (e) => {
+                        if (e.target === confirmDeleteCourseModalID) {
+                            confirmDeleteCourseModalID.classList.remove("is-active");
+                        }
+                    });
+
+                    confirmDeleteCourseModalCancelButtonID.addEventListener("click", () => {
+                        confirmDeleteCourseModalID.classList.remove("is-active");
+                    });
+
+                    confirmDeleteYesButtonID.addEventListener("click", () => {
+                        confirmationDelete = true;
+                        confirmDeleteCard(confirmationDelete);
+                        confirmDeleteCourseModalID.classList.remove("is-active");
+                    });
+
+
                 }
+
+                
             });
         }
     }
@@ -856,6 +898,20 @@ document.addEventListener("DOMContentLoaded", () => {
         gwaTrigger.addEventListener("click", (e) => {
             e.preventDefault();
             gwaModal.classList.add("is-active");
+            
+            if (gwaTrigger && gwaModal && closeModalBtn) {
+                gwaTrigger.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    
+                    renderGwaModalContents(); 
+                    
+                    gwaModal.classList.add("is-active");
+                });
+                closeModalBtn.addEventListener("click", () => gwaModal.classList.remove("is-active"));
+                gwaModal.addEventListener("click", (e) => {
+                    if (e.target === gwaModal) gwaModal.classList.remove("is-active");
+                });
+            } 
         });
         closeModalBtn.addEventListener("click", () => gwaModal.classList.remove("is-active"));
         gwaModal.addEventListener("click", (e) => {
@@ -979,4 +1035,56 @@ if (goalsModal && closeGoalsModalBtn && goalSlider && goalValueDisplay) {
         }
     });
 
+}
+
+function renderGwaModalContents() {
+    const modalGwaNumber = document.getElementById("modal-gwa-summary-number");
+    const modalGradesList = document.getElementById("modal-gwa-grades-list");
+    
+    if (!modalGradesList) return;
+    modalGradesList.innerHTML = "";
+
+    let totalWeightedGradesAccumulator = 0;
+    let totalCreditUnitsAccumulator = 0;
+    let listHTML = "";
+
+    localCachedCoursesList.forEach(courseData => {
+        const courseName = courseData.courseName || "Unnamed Course";
+        const formula = courseData.selectedFormula || "";
+        const units = courseData.creditUnits !== undefined ? parseFloat(courseData.creditUnits) : 0;
+        const componentsDistribution = courseData.componentsDistribution || {};
+        const analysis = calculateCourseGradeMetrics(formula, componentsDistribution);
+        const pupMetrics = formula ? determinePUPStatus(analysis.finalGrade) : { scale: "-", description: "--" };
+        if (formula && !isNaN(analysis.finalGrade) && units > 0) {
+            totalWeightedGradesAccumulator += (analysis.finalGrade * units);
+            totalCreditUnitsAccumulator += units;
+        }
+
+        let colorClass = "grey";
+        if (pupMetrics.scale !== "-") {
+            const scaleNum = parseFloat(pupMetrics.scale);
+            if (scaleNum <= 1.75) colorClass = "green";
+            else if (scaleNum <= 3.00) colorClass = "orange";
+            else colorClass = "red";
+        }
+
+        listHTML += `
+            <li class="grade-item">
+                <span class="item-prefix">> </span>
+                <span class="modal-course-code">${courseName}</span>
+                <span class="grade-score ${colorClass}">${pupMetrics.scale}</span>
+            </li>
+        `;
+    });
+
+    modalGradesList.innerHTML = listHTML;
+
+    if (totalCreditUnitsAccumulator > 0) {
+        const globalFinalGwaScore = totalWeightedGradesAccumulator / totalCreditUnitsAccumulator;
+        if (modalGwaNumber) {
+            modalGwaNumber.textContent = determinePUPStatus(globalFinalGwaScore).scale;
+        }
+    } else {
+        if (modalGwaNumber) modalGwaNumber.textContent = "-.--";
+    }
 }

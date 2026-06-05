@@ -1103,3 +1103,62 @@ a.check-card-trigger:active {
         font-size: 2.5rem;
     }
 }
+
+
+.confirm-delete-summary {
+    text-align: center;
+}
+
+.confirm-delete-label {
+    color: #ff8000;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.confirm-delete-number {
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #444;
+    line-height: 1;
+}
+
+.mainButtonsConfirm-delete {
+    display: flex;
+    align-items: center; /*center vertically*/
+    justify-content: center; /*center horizontally*/
+    gap: 1rem;
+    margin-top: 25px;
+}
+
+.confirm-delete-yes-button {
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    margin-top: .5rem;
+    padding: .4rem 2.5rem;
+    font-size: 16px;
+    transition-duration: .7s;
+    background: #ff8000;
+}
+
+.confirm-delete-no-button {
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    margin-top: .5rem;
+    padding: .4rem 2.5rem;
+    font-size: 16px;
+    transition-duration: .7s;
+    background-color: #959191;
+}
+
+.confirm-delete-yes-button:hover {
+    background-color: #ca5908;
+}
+
+.confirm-delete-no-button:hover {
+    background-color: #514e4e;
+}

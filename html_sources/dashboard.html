@@ -90,33 +90,17 @@
         <div class="modal-card">
             <div class="modal-header">
                 <span class="settings-gear"></span>
-                <h3 class="modal-title">Grades</h3>
+                <h3 class="modal-title">Grades Summary</h3>
                 <button id="close-modal-btn" class="close-modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="gwa-summary">
                     <p class="gwa-label">Final GWA</p>
-                    <p class="gwa-number">2.0</p>
+                    <p class="gwa-number" id="modal-gwa-summary-number">-.--</p> 
                 </div>
                 <div class="grades-list-container">
                     <hr class="modal-list-divider">
-                    <ul class="grades-list">
-                        <li class="grade-item">
-                            <span class="item-prefix">> </span>
-                            <span class="modal-course-code">DS1</span>
-                            <span class="grade-score green">1.5</span>
-                        </li>
-                        <li class="grade-item">
-                            <span class="item-prefix">> </span>
-                            <span class="modal-course-code">ComProg</span>
-                            <span class="grade-score orange">2.5</span>
-                        </li>
-                        <li class="grade-item">
-                            <span class="item-prefix">> </span>
-                            <span class="modal-course-code">STS</span>
-                            <span class="grade-score grey">-</span>
-                        </li>
-                    </ul>
+                    <ul class="grades-list" id="modal-gwa-grades-list"></ul> 
                 </div>
             </div>
         </div>
@@ -203,6 +187,23 @@
 
                 </div>
 
+            </div>
+        </div>
+    </div>
+    <div id="confirm-delete-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Delete this course?</h3>
+                <button id="close-modal-btn-delete-course" class="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-delete-summary">
+                    <p class="confirm-delete-label">Are you sure you want to delete this course? It cannot be undone once confirmed.</p>
+                    <div class="mainButtonsConfirm-delete">
+                        <button id="confirm-delete-yes-button-ID" class="confirm-delete-yes-button">Yes</button>
+                        <button id="confirm-delete-no-button-ID" class="confirm-delete-no-button">No</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

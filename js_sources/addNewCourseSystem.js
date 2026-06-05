@@ -459,10 +459,10 @@ function displayFormula(formulaText) {
                             <button type="button" class="delete-overlay-btn remove-pair-trigger" title="Delete Score Row">✕</button>
 
                             <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: flex-start;">
-                                <span style="font-size: 0.75rem; font-weight: bold; color: #cf7d1f; min-width: 25px;">#${p}</span>
+                                <span class="pair-index-label" style="font-size: 0.75rem; font-weight: bold; color: #cf7d1f; min-width: 25px;">#${p}</span>
                                 
                                 <p style="font-size: 0.85rem; color: #555; margin: 0; min-width: 90px;">
-                                    Score: <span id="${variable}-score-${k}-${p}" style="font-weight: bold; color: #444;">0</span>
+                                    Score: <span id="${variable}-score-${k}-${p}" class="pair-score-display" style="font-weight: bold; color: #444;">0</span>
                                 </p>
                                 
                                 <span style="font-size: 0.85rem; color: #555; font-weight: bold;">/</span>
@@ -471,6 +471,7 @@ function displayFormula(formulaText) {
                                     <label for="${variable}-total-${k}-${p}" class="total-label" style="font-size: 0.85rem; color: #555; margin: 0;">Total:</label>
                                     <input type="number" 
                                         id="${variable}-total-${k}-${p}" 
+                                        class="pair-total-input"
                                         name="total-score" 
                                         placeholder="100" 
                                         min="1" 
@@ -499,6 +500,31 @@ function displayFormula(formulaText) {
 
                     pairDeleteButton.addEventListener("click", function() {
                         currentPairRow.remove();
+                        
+                        const remainingPairs = scorePairsContainer.querySelectorAll(".score-input-pair");
+                        pairCounter = remainingPairs.length;
+
+                        remainingPairs.forEach((row, index) => {
+                            const newIndex = index + 1;
+
+                            const label = row.querySelector(".pair-index-label");
+                            if (label) label.textContent = `#${newIndex}`;
+
+                            const scoreDisplay = row.querySelector(".pair-score-display");
+                            if (scoreDisplay) scoreDisplay.id = `${variable}-score-${k}-${newIndex}`;
+
+                            const totalInput = row.querySelector(".pair-total-input");
+                            if (totalInput) totalInput.id = `${variable}-total-${k}-${newIndex}`;
+
+                            const totalPreview = row.querySelector(".total-preview");
+                            if (totalPreview) totalPreview.id = `${variable}-total-preview-${k}-${newIndex}`;
+
+                            const editBtn = row.querySelector(".total-edit-btn");
+                            if (editBtn) editBtn.id = `${variable}-total-edit-btn-${k}-${newIndex}`;
+                            
+                            const totalLabel = row.querySelector(".total-label");
+                            if (totalLabel) totalLabel.setAttribute("for", `${variable}-total-${k}-${newIndex}`);
+                        });
                     });
 
                     totalInputField.addEventListener("keydown", function(event) {
