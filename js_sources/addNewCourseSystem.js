@@ -7,6 +7,7 @@ import * as math from 'mathjs';
 const courseNameID = document.getElementById("course-name");
 const instructorID = document.getElementById("prof-name");
 const courseCodeID = document.getElementById("course-code");
+const creditUnitsID = document.getElementById("credit-units");
 const buttonSaveCourse = document.getElementById("saveCourse");
 const warningMessage = document.getElementById("warning-message");
 
@@ -40,8 +41,8 @@ const dashboardModalID = document.getElementById("dashboard-modal");
 // input grades div
 const inputGradesCardID = document.getElementById("input-grades-card");
 
-const rawMinorFormula = "class_standard*(70/100)+exam*(30/100)";
-const rawMajorFormula = "class_standard*(60/100)+exam*(40/100)";
+const rawMinorFormula = "class_standard*0.70+exam*0.30";
+const rawMajorFormula = "class_standard*0.60+exam*0.40";
 let rawCustomFormula;
 
 let selectedRawFormula = ""; 
@@ -59,6 +60,51 @@ majorFormulaID.innerHTML = majorFormulaLatex;
 
 // global variable names
 let globalVariableNames;
+
+const styleSheetToken = document.createElement("style");
+styleSheetToken.textContent = `
+    .config-header-row, .score-input-pair {
+        position: relative !important;
+    }
+    .add-pair-trigger-btn:hover, .add-config-trigger-btn:hover {
+        background: #dcfce7 !important;
+        border-color: #86efac !important;
+        color: #15803d !important;
+    }
+    .delete-overlay-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: #fee2e2;
+        color: #ef4444;
+        border: 1px solid #fca5a5;
+        border-radius: 4px;
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease, background 0.2s ease;
+        z-index: 20;
+    }
+    .config-header-row:hover .delete-overlay-btn,
+    .score-input-pair:hover .delete-overlay-btn {
+        opacity: 1;
+    }
+    .delete-overlay-btn:hover {
+        background: #fecaca;
+        color: #dc2626;
+    }
+    .weight-input-invalid {
+        border: 2px solid red !important;
+        background-color: #fef2f2 !important;
+    }
+`;
+document.head.appendChild(styleSheetToken);
 
 function renderInitialFormulas() {
     if (window.MathJax && window.MathJax.typesetPromise) {
@@ -116,8 +162,9 @@ function showWarning(message) {
 }
 
 function validateAndCollectData() {
-    if (!courseNameID.value.trim() || !instructorID.value.trim() || !courseCodeID.value.trim()) {
-        showWarning("Core course details are incomplete. Please ensure Course Name, Instructor, and Course Code are filled out.");
+
+    if (!courseNameID.value.trim() || !instructorID.value.trim() || !courseCodeID.value.trim() || !creditUnitsID.value.trim()) {
+        showWarning("Core course details are incomplete. Please ensure Course Name, Instructor, Course Code, and Credit Units are filled out.");
         return null;
     }
 
@@ -136,97 +183,95 @@ function validateAndCollectData() {
 
     for (let card of inputCards) {
         const variableName = card.getAttribute("data-variable");
-        const mainDistSelect = card.querySelector(".main-dist-select");
-        const distOfMembers = parseInt(mainDistSelect.value);
+        const configGroups = card.querySelectorAll(".scoring-setup-group");
+        const distOfConfigs = configGroups.length;
 
-        if (distOfMembers === 0) {
-            showWarning(`Please define the distribution of members for component: <strong>${variableName}</strong>.`);
+        if (distOfConfigs === 0) {
+            showWarning(`Please append at least one configuration distribution structure component for: <strong>${variableName}</strong>.`);
             return null;
         }
 
+        let totalWeightSum = 0;
+        configGroups.forEach(group => {
+            const percentageInput = group.querySelector('input[name="config-percentage"]');
+            const value = parseFloat(percentageInput.value.trim()) || 0;
+            totalWeightSum += value;
+        });
+
+        if (totalWeightSum !== 100) {
+            configGroups.forEach(group => {
+                const percentageInput = group.querySelector('input[name="config-percentage"]');
+                percentageInput.classList.add("weight-input-invalid");
+            });
+            showWarning(`The configuration weight percentages for <strong>${variableName}</strong> must sum to exactly 100%. Currently, they add up to: <strong>${totalWeightSum}%</strong>.`);
+            return null;
+        } else {
+            configGroups.forEach(group => {
+                const percentageInput = group.querySelector('input[name="config-percentage"]');
+                percentageInput.classList.remove("weight-input-invalid");
+            });
+        }
+
         gradingSystemDistribution[variableName] = {
-            distributionOfMembers: distOfMembers,
-            items: []
+            distributionCount: distOfConfigs,
+            configs: []
         };
 
-        const subItemRows = card.querySelectorAll(".sub-item-row");
-        
-        for (let idx = 0; idx < subItemRows.length; idx++) {
-            const row = subItemRows[idx];
-            const itemIndex = idx + 1;
+        for (let cIdx = 0; cIdx < configGroups.length; cIdx++) {
+            const configGroup = configGroups[cIdx];
+            const configIndex = cIdx + 1;
 
-            const percentageInput = row.querySelector('input[name="sub-percentage"]');
+            const titleInput = configGroup.querySelector('input[type="text"]');
+            const titleValue = titleInput.value.trim();
+
+            if (!titleValue) {
+                showWarning(`Title missing on <strong>${variableName}</strong> &rarr; Item Group #${configIndex}.`);
+                return null;
+            }
+
+            const percentageInput = configGroup.querySelector('input[name="config-percentage"]');
             const pctValue = percentageInput.value.trim();
 
             if (!pctValue) {
-                showWarning(`Component <strong>${variableName}</strong> (Item ${itemIndex}) distribution target percentage value is missing.`);
+                showWarning(`Component <strong>${variableName}</strong> &rarr; Item Group #${configIndex} ("${titleValue}") target distribution weight percentage value is missing.`);
                 return null;
             }
 
-            const configsCountSelect = row.querySelector(`select[name="sub-number"]`);
-            const configsCount = parseInt(configsCountSelect.value);
+            const scorePairBlocks = configGroup.querySelectorAll(".score-input-pair");
+            const scorePairsCount = scorePairBlocks.length;
 
-            if (configsCount === 0) {
-                showWarning(`Component <strong>${variableName}</strong> (Item ${itemIndex}) requires at least 1 scoring config element assignment set.`);
+            if (scorePairsCount === 0) {
+                showWarning(`Item assessment count elements not configured for title "<strong>${titleValue}</strong>".`);
                 return null;
             }
 
-            const itemConfigurationData = {
-                itemNo: itemIndex,
+            const configProfile = {
+                configNo: configIndex,
+                inputName: titleValue,
                 percentageDistribution: parseFloat(pctValue),
-                configs: []
+                selectCount: scorePairsCount,
+                scorePairs: []
             };
 
-            const configGroups = row.querySelectorAll(".scoring-setup-group");
-            for (let cIdx = 0; cIdx < configGroups.length; cIdx++) {
-                const configGroup = configGroups[cIdx];
-                const configIndex = cIdx + 1;
+            for (let pIdx = 0; pIdx < scorePairBlocks.length; pIdx++) {
+                const pairBlock = scorePairBlocks[pIdx];
+                const pairIndex = pIdx + 1;
 
-                const titleInput = configGroup.querySelector('input[type="text"]');
-                const titleValue = titleInput.value.trim();
+                const totalInput = pairBlock.querySelector('input[name="total-score"]');
+                const totalValue = totalInput.value.trim();
 
-                if (!titleValue) {
-                    showWarning(`Title missing on <strong>${variableName}</strong> &rarr; Item ${itemIndex} &rarr; Config ${configIndex}.`);
+                if (!totalValue) {
+                    showWarning(`Specify a Total Max score bounds value for listing item #${pairIndex} inside assessment component "${titleValue}".`);
                     return null;
                 }
 
-                const subScoreCountSelect = configGroup.querySelector(".sub-score-count-select");
-                const scorePairsCount = parseInt(subScoreCountSelect.value);
-
-                if (scorePairsCount === 0) {
-                    showWarning(`Item count values not configured for title "<strong>${titleValue}</strong>" layout profile.`);
-                    return null;
-                }
-
-                const configProfile = {
-                    inputName: titleValue,
-                    selectCount: scorePairsCount,
-                    scorePairs: []
-                };
-
-                const scorePairBlocks = configGroup.querySelectorAll(".score-input-pair");
-                for (let pIdx = 0; pIdx < scorePairBlocks.length; pIdx++) {
-                    const pairBlock = scorePairBlocks[pIdx];
-                    const pairIndex = pIdx + 1;
-
-                    const totalInput = pairBlock.querySelector('input[name="total-score"]');
-                    const totalValue = totalInput.value.trim();
-
-                    if (!totalValue) {
-                        showWarning(`Specify a Total Max score bounds value for listing item #${pairIndex} inside assessment component "${titleValue}".`);
-                        return null;
-                    }
-
-                    configProfile.scorePairs.push({
-                        score: 0,
-                        totalScore: parseInt(totalValue)
-                    });
-                }
-
-                itemConfigurationData.configs.push(configProfile);
+                configProfile.scorePairs.push({
+                    score: 0,
+                    totalScore: parseInt(totalValue)
+                });
             }
 
-            gradingSystemDistribution[variableName].items.push(itemConfigurationData);
+            gradingSystemDistribution[variableName].configs.push(configProfile);
         }
     }
 
@@ -256,8 +301,10 @@ async function addNewCourse() {
             courseName: courseNameID.value.trim(),
             instructor: instructorID.value.trim(),
             courseCode: courseCodeID.value.trim(),
+            creditUnits: parseFloat(creditUnitsID.value.trim()),
             selectedFormula: selectedRawFormula,
             componentsDistribution: distributionPayload,
+            createdAt: new Date(),
             updatedAt: new Date()
         });
 
@@ -275,7 +322,6 @@ async function addNewCourse() {
     }
 }
 
-// render chosen formula function
 async function renderChosenFormula() {
     if (window.MathJax && window.MathJax.typesetPromise) {
         window.MathJax.typesetClear([chosenFormulaID]);
@@ -312,268 +358,176 @@ function displayFormula(formulaText) {
         variableNames.forEach((variable) => {
             const htmlGroup = `
                 <div class="inputCard" data-variable="${variable}" style="margin-bottom: 20px; border: 1px solid #eaeaea; padding: 15px; border-radius: 6px;">
-                    <h4>Percentage Dist. ${variable}</h4>
+                    <h4 style="margin-bottom: 12px;">Percentage Dist. ${variable}</h4>
                     
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <select name="number" id="${variable}-distribution" class="main-dist-select" style="width: 60px; padding: 2px 5px;">
-                            <option value="0">none</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                        </select>
-                        <p style="margin: 0;">the distribution of members</p>
-                    </div>
+                    <div id="${variable}-configs-master-wrapper" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px;"></div>
 
-                    <div id="${variable}-sub-options-container" style="margin-top: 10px; display: flex; flex-direction: column; gap: 12px;"></div>
+                    <button type="button" class="add-config-trigger-btn" id="${variable}-add-config-btn" style="display: block; background: #f0fdf4; padding: 12px; border-radius: 4px; border: 2px dotted #bbf7d0; width: 100%; text-align: center; color: #16a34a; font-weight: bold; cursor: pointer; transition: background 0.2s ease;">
+                        + Add New Configuration Group
+                    </button>
                 </div>
             `;
 
             inputGradesCardID.insertAdjacentHTML("beforeend", htmlGroup);
 
-            const selectElement = document.getElementById(`${variable}-distribution`);
-            const subContainer = document.getElementById(`${variable}-sub-options-container`);
+            const configsMasterWrapper = document.getElementById(`${variable}-configs-master-wrapper`);
+            const addConfigBtn = document.getElementById(`${variable}-add-config-btn`);
+            
+            let configCounter = 0;
 
-            selectElement.addEventListener("change", function() {
-                const selectedValue = parseInt(this.value);
-                
-                subContainer.innerHTML = "";
+            addConfigBtn.addEventListener("click", function() {
+                configCounter++;
+                const k = configCounter;
 
-                if (selectedValue === 0) return;
+                const dynamicConfigGroupHtml = `
+                    <div class="scoring-setup-group" data-config-idx="${k}" style="display: flex; flex-direction: column; gap: 8px; background: #fafafa; padding: 12px; border-radius: 4px; border-left: 3px solid #f49223;">
+                        
+                        <div class="config-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%; padding-right: 36px; box-sizing: border-box;">
+                            
+                            <button type="button" class="delete-overlay-btn remove-config-trigger" title="Delete Configuration Group">✕</button>
 
-                for (let i = 1; i <= selectedValue; i++) {
-                    const subGroupHtml = `
-                        <div class="sub-item-row" style="border-bottom: 1px dashed #ddd; padding-bottom: 10px; margin-bottom: 5px;">
-                            <div class="inputDropDown" style="display: flex; align-items: center; gap: 12px; margin-left: 1rem; flex-wrap: wrap;">
-                                <label style="font-size: 0.85rem; color: #555; font-weight: 600; min-width: 50px;">Item ${i}:</label>
-                                
-                                <select name="sub-number" id="${variable}-group-distribution-${i}" style="width: 60px; padding: 2px 5px; height: 28px; border-radius: 4px; border: 1px solid #ccc;">
-                                    <option value="0">0</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                    <option value="3">3</option>
-                                    <option value="4">4</option>
-                                    <option value="5">5</option>
-                                    <option value="6">6</option>
-                                    <option value="7">7</option>
-                                    <option value="8">8</option>
-                                    <option value="9">9</option>
-                                </select>
-
-                                <div class="editable-field-group percentage-field-group" style="margin: 0; height: 32px; gap: 6px; display: flex; align-items: center;">
-                                    <label for="${variable}-percentage-${i}" class="input-pct-label" style="font-size: 0.85rem; color: #555;">% distribution:</label>
-                                    
-                                    <input type="number" 
-                                           id="${variable}-percentage-${i}" 
-                                           name="sub-percentage" 
-                                           placeholder="Ex. 20" 
-                                           min="0" 
-                                           max="100" 
-                                           style="width: 70px; padding: 2px 6px; height: 28px; border-radius: 4px; border: 1px solid #ccc; margin: 0;">
-                                    
-                                    <span class="field-preview pct-preview" style="display: none; font-size: 14px; padding: 2px 6px; height: 28px; line-height: 24px;"></span>
-                                    <span class="pct-sign" style="font-weight: bold; color: #555;">%</span>
-                                    
-                                    <button type="button" class="edit-field-btn pct-edit-btn" style="display: none; padding: 2px 8px; height: 26px; font-size: 0.75rem; margin-left: 5px;">Edit</button>
-                                </div>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <input type="text" 
+                                    id="${variable}-name-config-${k}" 
+                                    placeholder="Quiz / Activity Title" 
+                                    style="width: 160px; padding: 2px 6px; height: 28px; border-radius: 4px; border: 1px solid #ccc; margin: 0;">
                             </div>
 
-                            <div id="${variable}-configs-master-wrapper-${i}" style="margin-top: 5px; display: flex; flex-direction: column; gap: 8px;"></div>
+                            <div class="editable-field-group percentage-field-group" style="height: 32px; gap: 4px; display: inline-flex; align-items: center; margin-left: auto;">
+                                <label for="${variable}-percentage-${k}" class="input-pct-label" style="font-size: 0.85rem; color: #555; margin-right: 2px;">% weight:</label>
+                                
+                                <input type="number" 
+                                       id="${variable}-percentage-${k}" 
+                                       name="config-percentage" 
+                                       placeholder="20" 
+                                       min="0" 
+                                       max="100" 
+                                       style="width: 50px; padding: 2px 4px; height: 26px; border: 1px solid #f49223; border-radius: 4px; background: #fff; margin: 0; font-size: 0.9rem; font-weight: bold; text-align: center; outline: none; box-sizing: border-box;">
+                                
+                                <span id="${variable}-pct-sign-${k}" class="pct-sign" style="font-weight: bold; color: #555; font-size: 0.9rem; margin-right: 4px;">%</span>
+                            </div>
+                        </div>
+
+                        <div id="${variable}-score-pairs-container-${k}" style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px; width: 100%;"></div>
+
+                        <button type="button" class="add-pair-trigger-btn" id="${variable}-add-pair-btn-${k}" style="display: block; background: #f0fdf4; padding: 6px 12px; border-radius: 4px; border: 2px dotted #bbf7d0; width: 100%; max-width: 450px; text-align: center; color: #16a34a; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease; box-sizing: border-box;">
+                            + Add Assessment Item Record
+                        </button>
+                    </div>
+                `;
+                
+                configsMasterWrapper.insertAdjacentHTML("beforeend", dynamicConfigGroupHtml);
+                
+                const currentConfigBlock = configsMasterWrapper.lastElementChild;
+                
+                const titleInput = currentConfigBlock.querySelector(`input[type="text"]`);
+                const pctInput = currentConfigBlock.querySelector(`input[name="config-percentage"]`);
+
+                const scorePairsContainer = currentConfigBlock.querySelector(`#${variable}-score-pairs-container-${k}`);
+                const addPairBtn = currentConfigBlock.querySelector(`#${variable}-add-pair-btn-${k}`);
+                const configDeleteButton = currentConfigBlock.querySelector(`.remove-config-trigger`);
+
+                configDeleteButton.addEventListener("click", function() {
+                    currentConfigBlock.remove();
+                });
+
+                titleInput.addEventListener("keydown", function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                    }
+                });
+
+                pctInput.addEventListener("keydown", function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                    }
+                });
+
+                pctInput.addEventListener("input", function() {
+                    pctInput.classList.remove("weight-input-invalid");
+                });
+
+                let pairCounter = 0;
+
+                addPairBtn.addEventListener("click", function() {
+                    pairCounter++;
+                    const p = pairCounter;
+
+                    const scorePairHtml = `
+                        <div class="score-input-pair" style="display: block; background: #fdf6ed; padding: 6px 36px 6px 12px; border-radius: 4px; border: 1px solid #fcead2; width: 100%; max-width: 450px; box-sizing: border-box;">
+
+                            <button type="button" class="delete-overlay-btn remove-pair-trigger" title="Delete Score Row">✕</button>
+
+                            <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: flex-start;">
+                                <span style="font-size: 0.75rem; font-weight: bold; color: #cf7d1f; min-width: 25px;">#${p}</span>
+                                
+                                <p style="font-size: 0.85rem; color: #555; margin: 0; min-width: 90px;">
+                                    Score: <span id="${variable}-score-${k}-${p}" style="font-weight: bold; color: #444;">0</span>
+                                </p>
+                                
+                                <span style="font-size: 0.85rem; color: #555; font-weight: bold;">/</span>
+                                
+                                <div class="total-score-field-group" style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <label for="${variable}-total-${k}-${p}" class="total-label" style="font-size: 0.85rem; color: #555; margin: 0;">Total:</label>
+                                    <input type="number" 
+                                        id="${variable}-total-${k}-${p}" 
+                                        name="total-score" 
+                                        placeholder="100" 
+                                        min="1" 
+                                        style="width: 65px; padding: 2px 6px; height: 24px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
+                                    
+                                    <p id="${variable}-total-preview-${k}-${p}" class="total-preview" style="display: none; font-size: 0.85rem; font-weight: bold; color: #444; margin: 0;"></p>
+                                </div>
+
+                                <button type="button" 
+                                        id="${variable}-total-edit-btn-${k}-${p}" 
+                                        class="edit-field-btn total-edit-btn" 
+                                        style="display: none; padding: 1px 6px; height: 22px; font-size: 0.7rem; margin-left: auto;">
+                                    Edit
+                                </button>
+                            </div>
                         </div>
                     `;
-                    subContainer.insertAdjacentHTML("beforeend", subGroupHtml);
 
-                    const currentItemBlock = subContainer.lastElementChild;
-                    
-                    const inputElement = currentItemBlock.querySelector('input[type="number"]');
-                    const previewElement = currentItemBlock.querySelector('.field-preview');
-                    const editButton = currentItemBlock.querySelector('.edit-field-btn');
+                    scorePairsContainer.insertAdjacentHTML("beforeend", scorePairHtml);
 
-                    const scoreCountSelect = currentItemBlock.querySelector(`#${variable}-group-distribution-${i}`);
-                    const configsMasterWrapper = currentItemBlock.querySelector(`#${variable}-configs-master-wrapper-${i}`);
+                    const currentPairRow = scorePairsContainer.lastElementChild;
+                    const totalInputField = currentPairRow.querySelector(`input[name="total-score"]`);
+                    const totalPreviewField = currentPairRow.querySelector(`.total-preview`);
+                    const totalEditBtnField = currentPairRow.querySelector(`.total-edit-btn`);
+                    const pairDeleteButton = currentPairRow.querySelector(`.remove-pair-trigger`);
 
-                    inputElement.addEventListener("keydown", function(event) {
+                    pairDeleteButton.addEventListener("click", function() {
+                        currentPairRow.remove();
+                    });
+
+                    totalInputField.addEventListener("keydown", function(event) {
                         if (event.key === "Enter") {
                             event.preventDefault();
-                            const value = inputElement.value.trim();
+                            const value = totalInputField.value.trim();
                             if (value !== "") {
-                                previewElement.textContent = value;
-                                inputElement.style.display = "none";
-                                previewElement.style.display = "block";
-                                editButton.style.display = "inline-block";
+                                totalPreviewField.textContent = value;
+                                totalInputField.style.display = "none";
+                                totalPreviewField.style.display = "inline-block";
+                                totalEditBtnField.style.display = "inline-block";
                             }
                         }
                     });
 
-                    currentItemBlock.querySelector('.edit-field-btn').addEventListener("click", function() {
-                        inputElement.style.display = "block";
-                        previewElement.style.display = "none";
-                        editButton.style.display = "none";
-                        inputElement.focus();
+                    totalEditBtnField.addEventListener("click", function() {
+                        totalInputField.style.display = "block";
+                        totalPreviewField.style.display = "none";
+                        totalEditBtnField.style.display = "none";
+                        totalInputField.focus();
                     });
-
-                    scoreCountSelect.addEventListener("change", function() {
-                        const count = parseInt(this.value);
-                        configsMasterWrapper.innerHTML = "";
-
-                        if (count === 0) return;
-
-                        for (let k = 1; k <= count; k++) {
-                            const dynamicConfigGroupHtml = `
-                                <div class="scoring-setup-group" style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-left: 2rem; margin-top: 6px; background: #fafafa; padding: 8px; border-radius: 4px; border-left: 3px solid #ccc;">
-                                    
-                                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; width: 100%;">
-                                        <label style="font-size: 0.85rem; color: #444; font-weight: 600; min-width: 50px;">Config ${k}:</label>
-                                        
-                                        <input type="text" 
-                                            id="${variable}-name-${i}-config-${k}" 
-                                            placeholder="Quiz / Activity Title" 
-                                            style="width: 160px; padding: 2px 6px; height: 28px; border-radius: 4px; border: 1px solid #ccc; margin: 0;">
-                                        
-                                        <p id="${variable}-name-preview-${i}-config-${k}" style="display: none; font-size: 0.9rem; font-weight: bold; margin: 0; color: #333; min-height: 24px; line-height: 24px;"></p>
-                                        
-                                        <button type="button" id="${variable}-name-edit-btn-${i}-config-${k}" class="config-title-edit-btn edit-field-btn pct-edit-btn" style="display: none; padding: 1px 6px; height: 24px; font-size: 0.7rem;">Edit</button>
-                                        
-                                        <span style="color: #888; font-size: 0.8rem; margin-left: auto;">Items count:</span>
-                                        <select id="${variable}-sub-score-count-${i}-${k}" class="sub-score-count-select" style="width: 50px; padding: 2px 5px; height: 28px; border-radius: 4px; border: 1px solid #ccc;">
-                                            <option value="0">0</option>
-                                            <option value="1">1</option>
-                                            <option value="2">2</option>
-                                            <option value="3">3</option>
-                                            <option value="4">4</option>
-                                            <option value="5">5</option>
-                                            <option value="6">6</option>
-                                            <option value="7">7</option>
-                                            <option value="8">8</option>
-                                            <option value="9">9</option>
-                                        </select>
-                                    </div>
-
-                                    <div id="${variable}-score-pairs-container-${i}-${k}" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 4px; width: 100%;"></div>
-                                </div>
-                            `;
-                            configsMasterWrapper.insertAdjacentHTML("beforeend", dynamicConfigGroupHtml);
-                            
-                            const currentConfigBlock = configsMasterWrapper.lastElementChild;
-                            
-                            const titleInput = currentConfigBlock.querySelector(`input[type="text"]`);
-                            const titlePreview = currentConfigBlock.querySelector(`#${variable}-name-preview-${i}-config-${k}`);
-                            const titleEditBtn = currentConfigBlock.querySelector(`.config-title-edit-btn`);
-                            
-                            const subScoreCountSelect = currentConfigBlock.querySelector(`#${variable}-sub-score-count-${i}-${k}`);
-                            const scorePairsContainer = currentConfigBlock.querySelector(`#${variable}-score-pairs-container-${i}-${k}`);
-
-                            titleInput.addEventListener("keydown", function(event) {
-                                if (event.key === "Enter") {
-                                    event.preventDefault();
-                                    const value = titleInput.value.trim();
-                                    if (value !== "") {
-                                        titlePreview.textContent = value;
-                                        titleInput.style.display = "none";
-                                        titlePreview.style.display = "inline-block";
-                                        titleEditBtn.style.display = "inline-block";
-                                    }
-                                }
-                            });
-
-                            titleEditBtn.addEventListener("click", function() {
-                                titleInput.style.display = "block";
-                                titlePreview.style.display = "none";
-                                titleEditBtn.style.display = "none";
-                                titleInput.focus();
-                            });
-
-                            subScoreCountSelect.addEventListener("change", function() {
-                                const selectedPairsCount = parseInt(this.value);
-                                scorePairsContainer.innerHTML = "";
-
-                                if (selectedPairsCount === 0) return;
-
-                                scorePairsContainer.style.display = "flex";
-                                scorePairsContainer.style.flexDirection = "column";
-                                scorePairsContainer.style.alignItems = "flex-start";
-                                scorePairsContainer.style.gap = "8px";
-                                scorePairsContainer.style.width = "100%";
-
-                                for (let p = 1; p <= selectedPairsCount; p++) {
-                                    const scorePairHtml = `
-                                        <div class="score-input-pair" style="display: block; background: #fdf6ed; padding: 6px 12px; border-radius: 4px; border: 1px solid #fcead2; width: 100%; max-width: 450px; box-sizing: border-box;">
-                                            <div style="display: flex; align-items: center; gap: 10px; width: 100%; justify-content: flex-start;">
-                                                <span style="font-size: 0.75rem; font-weight: bold; color: #cf7d1f; min-width: 25px;">#${p}</span>
-                                                
-                                                <p style="font-size: 0.85rem; color: #555; margin: 0; min-width: 90px;">
-                                                    Score: <span id="${variable}-score-${i}-${k}-${p}" style="font-weight: bold; color: #444;">0</span>
-                                                </p>
-                                                
-                                                <span style="font-size: 0.85rem; color: #555; font-weight: bold;">/</span>
-                                                
-                                                <div class="total-score-field-group" style="display: inline-flex; align-items: center; gap: 6px;">
-                                                    <label for="${variable}-total-${i}-${k}-${p}" class="total-label" style="font-size: 0.85rem; color: #555; margin: 0;">Total:</label>
-                                                    <input type="number" 
-                                                        id="${variable}-total-${i}-${k}-${p}" 
-                                                        name="total-score" 
-                                                        placeholder="100" 
-                                                        min="1" 
-                                                        style="width: 65px; padding: 2px 6px; height: 24px; border: 1px solid #ccc; border-radius: 3px; margin: 0;">
-                                                    
-                                                    <p id="${variable}-total-preview-${i}-${k}-${p}" class="total-preview" style="display: none; font-size: 0.85rem; font-weight: bold; color: #444; margin: 0;"></p>
-                                                </div>
-
-                                                <button type="button" 
-                                                        id="${variable}-total-edit-btn-${i}-${k}-${p}" 
-                                                        class="edit-field-btn total-edit-btn" 
-                                                        style="display: none; padding: 1px 6px; height: 22px; font-size: 0.7rem; margin-left: auto;">
-                                                    Edit
-                                                </button>
-                                            </div>
-                                        </div>
-                                    `;
-                                    scorePairsContainer.insertAdjacentHTML("beforeend", scorePairHtml);
-
-                                    const currentPairRow = scorePairsContainer.lastElementChild;
-                                    const totalInputField = currentPairRow.querySelector(`input[name="total-score"]`);
-                                    const totalPreviewField = currentPairRow.querySelector(`.total-preview`);
-                                    const totalEditBtnField = currentPairRow.querySelector(`.total-edit-btn`);
-
-                                    totalInputField.addEventListener("keydown", function(event) {
-                                        if (event.key === "Enter") {
-                                            event.preventDefault();
-                                            const value = totalInputField.value.trim();
-                                            if (value !== "") {
-                                                totalPreviewField.textContent = value;
-                                                totalInputField.style.display = "none";
-                                                totalPreviewField.style.display = "inline-block";
-                                                totalEditBtnField.style.display = "inline-block";
-                                            }
-                                        }
-                                    });
-
-                                    totalEditBtnField.addEventListener("click", function() {
-                                        totalInputField.style.display = "block";
-                                        totalPreviewField.style.display = "none";
-                                        totalEditBtnField.style.display = "none";
-                                        totalInputField.focus();
-                                    });
-                                }
-                            });
-                        }
-                    });
-                }
+                });
             });
         });
     }
 }
 
-// event listeners
-
-
-document.addEventListener("DOMContentLoaded", () =>{
-
+// Event Listeners
+document.addEventListener("DOMContentLoaded", () => {
     if (cancelCourseButtonID && cancelModalID && closeModalBtn) {
         cancelCourseButtonID.addEventListener("click", (e) => {
             e.preventDefault();
@@ -591,7 +545,6 @@ document.addEventListener("DOMContentLoaded", () =>{
         });
     }
 
-    
     if (dashboardLinkId && dashboardModalID && dashboardModalBtn) {
         dashboardLinkId.addEventListener("click", (e) => {
             e.preventDefault();
@@ -608,7 +561,6 @@ document.addEventListener("DOMContentLoaded", () =>{
             }
         });
     }
-    
 
     if (closeButtonConfirmationYesID && closeButtonConfirmationNoID) {
         closeButtonConfirmationYesID.addEventListener("click", function() {
@@ -619,11 +571,9 @@ document.addEventListener("DOMContentLoaded", () =>{
         closeButtonConfirmationNoID.addEventListener("click", () => {
             cancelModalID.classList.remove("is-active");
         });
-
     }
 
     if (dashboardButtonConfirmationNoID && dashboardButtonConfirmationYesID) {
-
         dashboardButtonConfirmationYesID.addEventListener("click", () => {
             window.location.href = "./dashboard.html";
         });
@@ -631,10 +581,7 @@ document.addEventListener("DOMContentLoaded", () =>{
         dashboardButtonConfirmationNoID.addEventListener("click", () => {
             dashboardModalID.classList.remove("is-active");
         });
-
     }
-    
-
 });
 
 buttonSaveCourse.addEventListener("click", function() {
@@ -675,7 +622,6 @@ customFormulaButtonID.addEventListener("click", function() {
 });
 
 if (courseNameID) {
-
     let coursePreviewSpan = document.getElementById("course-name-preview");
     let courseEditBtn = document.getElementById("course-name-edit-btn");
     
@@ -714,35 +660,6 @@ if (courseNameID) {
         });
     }
 }
-
-const fieldGroups = document.querySelectorAll(".editable-field-group");
-
-fieldGroups.forEach((group) => {
-    const inputElement = group.querySelector("input");
-    const previewElement = group.querySelector(".field-preview");
-    const editButton = group.querySelector(".edit-field-btn");
-
-    inputElement.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            
-            const value = inputElement.value.trim();
-            if (value !== "") {
-                previewElement.textContent = value;
-                inputElement.style.display = "none";
-                previewElement.style.display = "block";
-                editButton.style.display = "inline-block";
-            }
-        }
-    });
-
-    editButton.addEventListener("click", function() {
-        inputElement.style.display = "block";
-        previewElement.style.display = "none";
-        editButton.style.display = "none";
-        inputElement.focus();
-    });
-});
 
 onAuthStateChanged(auth, async (user) => {
     if (!user) {

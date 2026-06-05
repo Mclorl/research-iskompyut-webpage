@@ -1069,10 +1069,6 @@ a.check-card-trigger:active {
         opacity 0.2s ease;
 }
 
-.goals-btn:hover {
-    transform: translateY(-1px);
-}
-
 .goals-save-btn {
     background:
         linear-gradient(

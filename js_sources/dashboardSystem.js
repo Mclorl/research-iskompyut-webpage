@@ -1,11 +1,12 @@
 import { db, auth } from "./index.js";
-import { doc, getDoc, collection, getDocs, updateDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs, updateDoc, deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 import * as math from 'mathjs';
 
 const studentNameHtml = document.getElementById("student-name-id");
 const coursesGridContainer = document.getElementById("courses-grid-container");
+const alertBannersContainer = document.querySelector(".alert-banners");
 
 const styleToken = document.createElement("style");
 styleToken.textContent = `
@@ -77,10 +78,43 @@ styleToken.textContent = `
         background-color: #fef2f2 !important;
         color: #ef4444 !important;
     }
+    .units-badge {
+        font-weight: 600;
+        color: #f49223;
+        background-color: #fdf6ed;
+        border: 1px solid #fcead2;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+    }
+    .btn-shake-error {
+        background: #ef4444 !important; 
+        animation: shakeWiggle 0.5s ease-in-out !important;
+    }
+    .settings-gear.trash-btn {
+        cursor: pointer;
+        color: #ef4444;
+        transition: color 0.2s ease;
+    }
+    .settings-gear.trash-btn:hover {
+        color: #b91c1c;
+    }
+    .empty-notifications-placeholder {
+        padding: 40px 20px !important;
+        min-height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @keyframes shakeWiggle {
+        0%, 100% { transform: translateX(0); }
+        15%, 45%, 75% { transform: translateX(-6px); }
+        30%, 60%, 90% { transform: translateX(6px); }
+    }
 `;
 document.head.appendChild(styleToken);
 
-// Global state controller references
 let activeCourseCode = null;
 let activeDocId = null; 
 let localComponentsDistribution = {};
@@ -97,6 +131,12 @@ onAuthStateChanged(auth, async (user) => {
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
                     studentNameHtml.innerHTML = userData.fullName || "Student";
+                    
+                    if (userData.gwaGoal && goalSlider && goalValueDisplay) {
+                        goalSlider.value = userData.gwaGoal;
+                        goalValueDisplay.textContent = parseFloat(userData.gwaGoal).toFixed(2);
+                        updateGwaCardUI(parseFloat(userData.gwaGoal));
+                    }
                 } else {
                     console.log("Data Does Not Exist.");
                 }
@@ -114,6 +154,151 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+function determinePUPStatus(percentageScore) {
+    const rawScore = percentageScore;
+    if (isNaN(rawScore)) return { scale: "N/A", description: "Invalid Score Data" };
+
+    if (rawScore >= 97.00) return { scale: "1.00", description: "Excellent" };
+    if (rawScore >= 94.00) return { scale: "1.25", description: "Excellent" };
+    if (rawScore >= 91.00) return { scale: "1.50", description: "Very Good" };
+    if (rawScore >= 88.00) return { scale: "1.75", description: "Very Good" };
+    if (rawScore >= 85.00) return { scale: "2.00", description: "Good" };
+    if (rawScore >= 82.00) return { scale: "2.25", description: "Good" };
+    if (rawScore >= 79.00) return { scale: "2.50", description: "Satisfactory" };
+    if (rawScore >= 76.00) return { scale: "2.75", description: "Satisfactory" };
+    if (rawScore >= 75.00) return { scale: "3.00", description: "Passing" };
+
+    return { scale: "5.00", description: "-.--" };
+}
+
+function calculateCourseGradeMetrics(formulaString, componentsDistribution) {
+    if (!formulaString) return { finalGrade: 0, breakdown: {}, passPredictions: [] };
+
+    let parsedNode;
+    try {
+        parsedNode = math.parse(formulaString);
+    } catch (e) {
+        return { finalGrade: 0, breakdown: {}, passPredictions: [] };
+    }
+
+    const formulaVariables = [];
+    parsedNode.filter((node) => node.isSymbolNode).forEach((sym) => {
+        if (!formulaVariables.includes(sym.name) && !math[sym.name]) {
+            formulaVariables.push(sym.name);
+        }
+    });
+
+    const totalWeightsMap = {};
+    formulaVariables.forEach(v => {
+        const singleVarScope = {};
+        singleVarScope[v] = 1;
+        formulaVariables.forEach(otherV => { if (otherV !== v) singleVarScope[otherV] = 0; });
+        try {
+            totalWeightsMap[v] = parsedNode.evaluate(singleVarScope);
+        } catch (e) {
+            totalWeightsMap[v] = 0;
+        }
+    });
+
+    const variableCalculatedValues = {};
+    const componentBreakdown = {};
+    const passPredictions = [];
+
+    let structuralMissingItemsCount = 0;
+    let targetMissingRowRef = null;
+    let missingItemVarWeight = 0; 
+    let missingConfigWeight = 0;
+    let missingItemConfigItemsCount = 0;
+
+    formulaVariables.forEach((varName) => {
+        const compData = componentsDistribution[varName] || componentsDistribution[varName.toLowerCase()] || null;
+        const configsArray = (compData && compData.configs) ? compData.configs : [];
+        const varWeightCoefficient = totalWeightsMap[varName] || 0;
+
+        let variableSumAccumulator = 0;
+        componentBreakdown[varName] = { configs: [], totalVarScore: 0 };
+
+        configsArray.forEach((config) => {
+            let configPairsSum = 0;
+            const pairArray = config.scorePairs || [];
+            const itemsInConfigCount = pairArray.length;
+            const configPercentageWeight = (config.percentageDistribution !== undefined ? config.percentageDistribution : 0) / 100;
+
+            pairArray.forEach((pair) => {
+                const currentScore = parseFloat(pair.score) || 0;
+                const totalBoundScore = parseFloat(pair.totalScore) || 100;
+
+                if (currentScore === 0) {
+                    structuralMissingItemsCount++;
+                    targetMissingRowRef = {
+                        configName: config.inputName || "Exam/Assessment",
+                        totalBoundScore: totalBoundScore
+                    };
+                    missingItemVarWeight = varWeightCoefficient;
+                    missingConfigWeight = configPercentageWeight;
+                    missingItemConfigItemsCount = itemsInConfigCount;
+                }
+
+                // (Score / Total * 50) + 50
+                const normalizedInstanceScore = ((currentScore / totalBoundScore) * 50) + 50;
+                configPairsSum += normalizedInstanceScore;
+            });
+
+            const averageConfigScore = itemsInConfigCount > 0 ? (configPairsSum / itemsInConfigCount) : 0;
+
+            const finalWeightedConfigValue = averageConfigScore * configPercentageWeight;
+            variableSumAccumulator += finalWeightedConfigValue;
+
+            componentBreakdown[varName].configs.push({
+                name: config.inputName,
+                average: averageConfigScore,
+                weighted: finalWeightedConfigValue
+            });
+        });
+
+        const finalComputedVariableValue = variableSumAccumulator * varWeightCoefficient;
+        variableCalculatedValues[varName] = finalComputedVariableValue;
+        componentBreakdown[varName].totalVarScore = variableSumAccumulator; 
+    });
+
+    let computedFinalOverallGrade = 0;
+    formulaVariables.forEach(v => {
+        computedFinalOverallGrade += (variableCalculatedValues[v] || 0);
+    });
+
+    if (structuralMissingItemsCount === 1 && targetMissingRowRef && missingItemVarWeight > 0 && missingConfigWeight > 0 && missingItemConfigItemsCount > 0) {
+        const standardPassingMark = 75;
+        const currentDeficit = standardPassingMark - computedFinalOverallGrade;
+
+        if (currentDeficit > 0) {
+            const neededConfigPoints = currentDeficit / missingItemVarWeight; 
+
+            const neededAverageIncrease = neededConfigPoints / missingConfigWeight;
+
+            
+            const neededNormalizedScoreForThisItem = 50 + (neededAverageIncrease * missingItemConfigItemsCount);
+
+            const targetScoreValue = ((neededNormalizedScoreForThisItem - 50) / 50) * targetMissingRowRef.totalBoundScore;
+            const requiredPercentageRatio = (targetScoreValue / targetMissingRowRef.totalBoundScore) * 100;
+
+            if (requiredPercentageRatio <= 100) {
+                passPredictions.push({
+                    itemTitle: targetMissingRowRef.configName,
+                    requiredPercentage: Math.max(0, Math.round(requiredPercentageRatio * 100) / 100),
+                    requiredScore: Math.max(0, Math.round(targetScoreValue * 100) / 100),
+                    maxPoints: targetMissingRowRef.totalBoundScore
+                });
+            }
+        }
+    }
+
+    return {
+        finalGrade: Math.min(100, Math.round(computedFinalOverallGrade * 100) / 100),
+        breakdown: componentBreakdown,
+        passPredictions: passPredictions
+    };
+}
+
 async function fetchAndRenderCourses(uid) {
     if (!coursesGridContainer) return;
 
@@ -121,32 +306,67 @@ async function fetchAndRenderCourses(uid) {
         const coursesCollectionRef = collection(db, "users", uid, "courses");
         const querySnapshot = await getDocs(coursesCollectionRef);
         
-        let gridHTML = "";
+        let coursesList = [];
+        let totalWeightedGradesAccumulator = 0;
+        let totalCreditUnitsAccumulator = 0;
+        let globalPassPredictionsList = [];
 
         if (querySnapshot.empty) {
             coursesGridContainer.innerHTML = `<p class="no-courses">No courses added yet. Click "+ Add New Course" to begin.</p>`;
+            if (alertBannersContainer) alertBannersContainer.innerHTML = `<p class="no-courses empty-notifications-placeholder">No notification.</p>`;
             return;
         }
 
         querySnapshot.forEach((doc) => {
-            const courseData = doc.data();
+            const data = doc.data();
+            coursesList.push({ id: doc.id, ...data });
+        });
 
+        coursesList.sort((a, b) => {
+            const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+            const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+            return dateA - dateB; 
+        });
+
+        let gridHTML = "";
+        
+        for (let courseData of coursesList) {
             const courseName = courseData.courseName || "Unnamed Course";
             const courseCode = courseData.courseCode || "N/A";
             const professor = courseData.instructor || "N/A";
-            const finalGrade = courseData.finalGrade || "-"; 
-            const formula = courseData.selectedFormula || "No formula specified";
+            const formula = courseData.selectedFormula || "";
+            const units = courseData.creditUnits !== undefined ? parseFloat(courseData.creditUnits) : 0;
             
-            const componentsDistributionStr = courseData.componentsDistribution ? JSON.stringify(courseData.componentsDistribution) : "{}";
+            const componentsDistribution = courseData.componentsDistribution || {};
+            
+            const analysis = calculateCourseGradeMetrics(formula, componentsDistribution);
+            const finalGrade = formula ? `${analysis.finalGrade}%` : "-";
+
+            if (analysis.passPredictions && analysis.passPredictions.length > 0) {
+                analysis.passPredictions.forEach(pred => {
+                    globalPassPredictionsList.push({
+                        course: courseName,
+                        ...pred
+                    });
+                });
+            }
+
+            if (formula && !isNaN(analysis.finalGrade) && units > 0) {
+                totalWeightedGradesAccumulator += (analysis.finalGrade * units);
+                totalCreditUnitsAccumulator += units;
+            }
+            
+            const componentsDistributionStr = JSON.stringify(componentsDistribution);
 
             gridHTML += `
                 <a href="javascript:void(0);"
                     class="check-card-trigger"
                     data-course="${courseName}"
                     data-code="${courseCode}"
-                    data-id="${doc.id}"
+                    data-id="${courseData.id}"
                     data-professor="${professor}"
                     data-grade="${finalGrade}"
+                    data-units="${units}"
                     data-formula="${encodeURIComponent(formula)}"
                     data-distribution="${encodeURIComponent(componentsDistributionStr)}">
                     <div class="course-card"> 
@@ -155,17 +375,61 @@ async function fetchAndRenderCourses(uid) {
                         </div>
                         <div class="grade-highlight text-green">${finalGrade}</div>
                         <div class="course-bottom">
-                            <div class="course-info">
-                                <span class="course-code">${courseCode}</span>
-                                <p class="professor">${professor}</p>
+                            <div class="course-info" style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                                <div>
+                                    <span class="course-code">${courseCode}</span>
+                                    <p class="professor" style="margin: 2px 0 0 0;">${professor}</p>
+                                </div>
+                                <span class="units-badge">${units} Units</span>
                             </div>
                         </div>
                     </div>
                 </a>
             `;
-        });
+        }
 
         coursesGridContainer.innerHTML = gridHTML;
+
+        // Sum of all (Course Grade * Credit Units) / Sum of Credit Units
+        if (totalCreditUnitsAccumulator > 0) {
+            const calculatedFinalGwaScore = totalWeightedGradesAccumulator / totalCreditUnitsAccumulator;
+            
+            const gwaSummaryDisplay = document.getElementById("dashboard-calculated-gwa");
+            if (gwaSummaryDisplay) {
+                gwaSummaryDisplay.textContent = calculatedFinalGwaScore.toFixed(2) + "%";
+            }
+            const sidebarGwa = document.querySelector("#GWA-actual-prediction");
+            if (sidebarGwa) {
+                sidebarGwa.textContent = determinePUPStatus(calculatedFinalGwaScore).scale + " ("+ calculatedFinalGwaScore.toFixed(2) + "%)";
+            }
+            const sidebarStatus = document.querySelector(".status-text");
+            if (sidebarStatus) {
+                sidebarStatus.textContent = determinePUPStatus(calculatedFinalGwaScore).description;
+            }
+        }
+
+        if (alertBannersContainer) {
+            alertBannersContainer.innerHTML = "";
+            
+            if (globalPassPredictionsList.length > 0) {
+                globalPassPredictionsList.forEach(p => {
+                    const bannerNode = document.createElement("div");
+                    bannerNode.className = "banner warning";
+                    bannerNode.innerHTML = `
+                        <span class="banner-icon">!</span>
+                        <div class="banner-text">
+                            <strong>${p.course}</strong>
+                            <p>
+                                Target Requirement: You must achieve at least <strong>${p.requiredPercentage.toFixed(1)}%</strong> on your upcoming missing component <strong>"${p.itemTitle}"</strong> to secure an overall passing baseline grade of 75.0%.
+                            </p>
+                        </div>
+                    `;
+                    alertBannersContainer.appendChild(bannerNode);
+                });
+            } else {
+                alertBannersContainer.innerHTML = `<p class="no-courses empty-notifications-placeholder">No active grade alerts or missing structural assignments detected.</p>`;
+            }
+        }
 
     } catch (error) {
         console.error("Error pulling course collections:", error);
@@ -173,11 +437,39 @@ async function fetchAndRenderCourses(uid) {
     }
 }
 
-// Global delegated event framework bound securely to layout structures
 document.addEventListener("DOMContentLoaded", () => {
     const cardModal = document.getElementById("card-modal");
     const dynamicContainer = document.getElementById("dynamic-sections-container");
     const editModalBtn = document.querySelector(".edit-modal-btn");
+
+    if (cardModal) {
+        const structuralIconElement = cardModal.querySelector(".settings-gear");
+        if (structuralIconElement) {
+            structuralIconElement.innerHTML = "&#128465;"; 
+            structuralIconElement.className = "settings-gear trash-btn";
+            structuralIconElement.title = "Delete this course";
+            
+            structuralIconElement.addEventListener("click", async (e) => {
+                e.preventDefault();
+                const user = auth.currentUser;
+                if (!user || !activeDocId) return;
+
+                const userConfirmation = confirm(`Are you sure you want to completely delete this course from your profile? This cannot be undone.`);
+                if (userConfirmation) {
+                    try {
+                        const targetDocRef = doc(db, "users", user.uid, "courses", activeDocId);
+                        await deleteDoc(targetDocRef);
+                        alert("Course deleted successfully.");
+                        cardModal.classList.remove("is-active");
+                        window.location.reload();
+                    } catch (err) {
+                        console.error("Error attempting to delete firestore record:", err);
+                        alert("An error occurred while deleting the course from the database.");
+                    }
+                }
+            });
+        }
+    }
 
     if (coursesGridContainer && cardModal) {
         coursesGridContainer.addEventListener("click", (e) => {
@@ -192,6 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const id = trigger.getAttribute("data-id") || code; 
             const professor = trigger.getAttribute("data-professor") || "N/A";
             const grade = trigger.getAttribute("data-grade") || "N/A";
+            const unitsScore = trigger.getAttribute("data-units") || "N/A";
             
             activeCourseCode = code; 
             activeDocId = id; 
@@ -208,6 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (cardModal.querySelector(".modal-course")) cardModal.querySelector(".modal-course").textContent = code;
             if (cardModal.querySelector("#modal-prof-name")) cardModal.querySelector("#modal-prof-name").textContent = professor;
             if (cardModal.querySelector("#modal-current-score")) cardModal.querySelector("#modal-current-score").textContent = grade;
+            if (cardModal.querySelector("#modal-units-score")) cardModal.querySelector("#modal-units-score").textContent = unitsScore + " Units";
 
             renderDynamicSections();
             cardModal.classList.add("is-active");
@@ -242,10 +536,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const variables = [];
                 node1.filter((node) => node.isSymbolNode).forEach((symbolNode) => {
-                    if (!variables.includes(symbolNode.name)) {
+                    if (!variables.includes(symbolNode.name) && !math[symbolNode.name]) {
                         variables.push(symbolNode.name);
                     }
                 });
+
+                const currentCalculations = calculateCourseGradeMetrics(decodedFormula, localComponentsDistribution);
+                console.log(calculateCourseGradeMetrics(decodedFormula, localComponentsDistribution));
 
                 if (variables.length > 0) {
                     let dynamicHTML = "";
@@ -253,56 +550,48 @@ document.addEventListener("DOMContentLoaded", () => {
                     variables.forEach((varName) => {
                         const displayHeader = varName.toUpperCase();
                         const componentData = localComponentsDistribution[varName] || localComponentsDistribution[varName.toLowerCase()] || null;
-                        const itemsArray = (componentData && componentData.items) ? componentData.items : [];
+                        const configsArray = (componentData && componentData.configs) ? componentData.configs : [];
 
                         let tableRowsHTML = "";
 
-                        if (itemsArray.length === 0) {
+                        if (configsArray.length === 0) {
                             tableRowsHTML = `<tr><td colspan="${isEditMode ? 4 : 3}" style="text-align: center; color: #888; padding: 10px;">No records registered for ${varName} yet.</td></tr>`;
                         } else {
-                            itemsArray.forEach((item, itemIdx) => {
-                                const currentItemNum = item.itemNo || "N/A";
-                                const distributionNumber = item.percentageDistribution !== undefined ? `${item.percentageDistribution}%` : "0%";
+                            configsArray.forEach((config, configIdx) => {
+                                const itemTitle = config.inputName ? config.inputName.toUpperCase() : "ASSESSMENT";
+                                const distributionNumber = config.percentageDistribution !== undefined ? `${config.percentageDistribution}%` : "0%";
 
                                 tableRowsHTML += `
                                     <tr style="background-color: #f7f9fa; font-weight: bold; border-bottom: 2px solid #eaeaea;">
                                         <td colspan="${isEditMode ? 4 : 3}" style="color: #64748b; padding: 8px; font-size: 0.9rem; text-align: left;">
-                                            Item ${currentItemNum} (Distribution Weight: ${distributionNumber})
+                                            ${itemTitle} (Weight: ${distributionNumber})
                                         </td>
                                     </tr>
                                 `;
                                 
-                                if (item.configs && Array.isArray(item.configs)) {
-                                    item.configs.forEach((config, configIdx) => {
-                                        const itemTitle = config.inputName ? config.inputName.toUpperCase() : "ASSESSMENT";
+                                if (config.scorePairs && Array.isArray(config.scorePairs)) {
+                                    config.scorePairs.forEach((pair, pairIdx) => {
+                                        const itemName = `${itemTitle} — Entry #${pairIdx + 1}`;
+                                        const itemScore = pair.score !== undefined ? pair.score : "0";
+                                        const itemMax = pair.totalScore !== undefined ? pair.totalScore : "0";
 
-                                        if (config.scorePairs && Array.isArray(config.scorePairs)) {
-                                            config.scorePairs.forEach((pair, pairIdx) => {
-                                                const itemName = `${itemTitle} — Entry #${pairIdx + 1}`;
-                                                const itemScore = pair.score !== undefined ? pair.score : "0";
-                                                const itemMax = pair.totalScore !== undefined ? pair.totalScore : "0";
-
-                                                tableRowsHTML += `
-                                                    <tr data-var="${varName}" data-item="${itemIdx}" data-config="${configIdx}" data-pair="${pairIdx}">
-                                                        ${isEditMode ? `
-                                                        <td class="action-cell">
-                                                            <button type="button" class="inline-edit-row-btn config-title-edit-btn edit-field-btn pct-edit-btn" style="display: block; padding: 2px 8px; height: 24px; font-size: 0.75rem; cursor: pointer; background-color: #fff; color: #f49223; border: 1px solid #f49223; border-radius: 6px; font-weight: 600; transition: all 0.25s ease-in-out; white-space: nowrap; margin: 0 auto; box-sizing: border-box;">Edit</button>
-                                                        </td>` : ''}
-                                                        <td style="padding-left: 20px; font-size: 0.85rem; color: #555; text-align: left;">${itemName}</td>
-                                                        <td class="score-cell" style="font-weight: 600; color: #333; text-align: left;">${itemScore}</td>
-                                                        <td class="total-cell" data-max="${itemMax}" style="color: #666; text-align: left;">${itemMax}</td>
-                                                    </tr>
-                                                `;
-                                            });
-                                        }
+                                        tableRowsHTML += `
+                                            <tr data-var="${varName}" data-config="${configIdx}" data-pair="${pairIdx}">
+                                                ${isEditMode ? `
+                                                <td class="action-cell">
+                                                    <button type="button" class="inline-edit-row-btn config-title-edit-btn edit-field-btn pct-edit-btn" style="display: block; padding: 2px 8px; height: 24px; font-size: 0.75rem; cursor: pointer; background-color: #fff; color: #f49223; border: 1px solid #f49223; border-radius: 6px; font-weight: 600; transition: all 0.25s ease-in-out; white-space: nowrap; margin: 0 auto; box-sizing: border-box;">Edit</button>
+                                                </td>` : ''}
+                                                <td style="padding-left: 20px; font-size: 0.85rem; color: #555; text-align: left;">${itemName}</td>
+                                                <td class="score-cell" style="font-weight: 600; color: #333; text-align: left;">${itemScore}</td>
+                                                <td class="total-cell" data-max="${itemMax}" style="color: #666; text-align: left;">${itemMax}</td>
+                                            </tr>
+                                        `;
                                     });
                                 }
                             });
                         }
 
-                        if (tableRowsHTML === "") {
-                            tableRowsHTML = `<tr><td colspan="${isEditMode ? 4 : 3}" style="text-align: center; color: #888;">No grade pairs found inside ${varName}.</td></tr>`;
-                        }
+                        const varStandingScore = currentCalculations.breakdown[varName] ? currentCalculations.breakdown[varName].totalVarScore : 0;
 
                         dynamicHTML += `
                             <div class="section-wrapper" style="margin-bottom: 24px;">
@@ -330,7 +619,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                     </div>
                                 </div>
                                 <div class="modal-footer-grades" style="margin-top: 10px; text-align: right;">
-                                    <div>Total Calculated Grade: <span class="bold">??%</span></div>
+                                    <div>Total Component Component Grade: <span class="bold">${varStandingScore.toFixed(2)}%</span></div>
                                 </div>
                             </div>
                         `;
@@ -357,23 +646,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (editModalBtn) {
-    editModalBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        if (isEditMode) return;
-        
-        isEditMode = true;
+        editModalBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (isEditMode) return;
+            
+            isEditMode = true;
+            localBackupDistribution = JSON.parse(JSON.stringify(localComponentsDistribution));
 
-        localBackupDistribution = JSON.parse(JSON.stringify(localComponentsDistribution));
+            editModalBtn.style.color = "#444444";
+            editModalBtn.style.opacity = "0.5";
+            editModalBtn.style.cursor = "not-allowed";
+            editModalBtn.style.pointerEvents = "none";
 
-        editModalBtn.style.color = "#444444";
-        editModalBtn.style.opacity = "0.5";
-        editModalBtn.style.cursor = "not-allowed";
-        editModalBtn.style.pointerEvents = "none";
+            renderDynamicSections();
+            insertActionButtons();
+        });
+    }
 
-        renderDynamicSections();
-        insertActionButtons();
-    });
-}
     function attachInlineRowListeners() {
         const rowEditButtons = cardModal.querySelectorAll(".inline-edit-row-btn");
         rowEditButtons.forEach(btn => {
@@ -406,21 +695,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const totalCell = tr.querySelector(".total-cell");
         const maxScore = parseFloat(totalCell.getAttribute("data-max")) || 0;
 
-        if (newScore > maxScore) {
+        if (newScore > maxScore || newScore < 0) {
             scoreInput.classList.add("input-error");
             return false;
         }
 
         scoreInput.classList.remove("input-error");
         const varName = tr.dataset.var;
-        const itemIdx = parseInt(tr.dataset.item);
         const configIdx = parseInt(tr.dataset.config);
         const pairIdx = parseInt(tr.dataset.pair);
 
         let key = localComponentsDistribution[varName] ? varName : varName.toLowerCase();
         
-        if (localComponentsDistribution[key]?.items?.[itemIdx]?.configs?.[configIdx]?.scorePairs?.[pairIdx]) {
-            localComponentsDistribution[key].items[itemIdx].configs[configIdx].scorePairs[pairIdx].score = newScore;
+        if (localComponentsDistribution[key]?.configs?.[configIdx]?.scorePairs?.[pairIdx]) {
+            localComponentsDistribution[key].configs[configIdx].scorePairs[pairIdx].score = newScore;
         }
 
         tr.querySelector(".score-cell").innerHTML = newScore;
@@ -446,10 +734,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         cancelBtnElement.addEventListener("click", () => {
             resetModalEditState();
-            
-
             localComponentsDistribution = JSON.parse(JSON.stringify(localBackupDistribution));
-            
             renderDynamicSections();
         });
 
@@ -464,6 +749,19 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (!allValid) return;
+
+            const currentDataStr = JSON.stringify(localComponentsDistribution);
+            const backupDataStr = JSON.stringify(localBackupDistribution);
+
+            if (currentDataStr === backupDataStr) {
+                saveBtnElement.classList.add("btn-shake-error");
+                
+                setTimeout(() => {
+                    saveBtnElement.classList.remove("btn-shake-error");
+                }, 500);
+                
+                return;
+            }
 
             const user = auth.currentUser;
             if (!user || !activeCourseCode) return;
@@ -492,7 +790,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 
                 await updateDoc(courseDocRef, {
-                    componentsDistribution: localComponentsDistribution
+                    componentsDistribution: localComponentsDistribution,
+                    updatedAt: new Date()
                 });
 
                 const triggerSource = document.querySelector(`.check-card-trigger[data-code="${activeCourseCode}"]`);
@@ -503,7 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 resetModalEditState();
                 renderDynamicSections();
                 cardModal.classList.remove("is-active");
-                location.reload()
+                location.reload();
 
             } catch (error) {
                 console.error("Error updating Firestore data entries:", error);
@@ -519,7 +818,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (existingContainer) existingContainer.remove();
     }
 
-    // Modal Close Action Event Targets
     const closeModalBtn2 = document.getElementById("close-modal-btn2");
     if (closeModalBtn2) {
         closeModalBtn2.addEventListener("click", () => {
@@ -566,135 +864,119 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// Trigger Elements
 const setGoalsTriggers = [
     ...document.querySelectorAll("a"),
     ...document.querySelectorAll("button"),
     ...document.querySelectorAll("*")
 ].filter((element) => {
     const text = element.textContent?.trim();
-
-    return (
-        text === "Set Goals" ||
-        text === "Change your goal here..."
-    );
+    return (text === "Set Goals" || text === "Change your goal here...");
 });
 
-// Modal Elements
 const goalsModal = document.getElementById("goals-modal");
 const closeGoalsModalBtn = document.getElementById("close-goals-modal");
 const goalSlider = document.getElementById("goal-slider");
 const goalValueDisplay = document.getElementById("goal-value-display");
 const saveGoalBtn = document.getElementById("save-goal-btn");
 
-// Safety Check
-if (
-    goalsModal &&
-    closeGoalsModalBtn &&
-    goalSlider &&
-    goalValueDisplay
-) {
+function updateGwaCardUI(selectedGoal) {
+    const formattedGoal = parseFloat(selectedGoal).toFixed(2);
+    const goalCard = document.querySelector(".card-container");
 
-    /* Open Modal */
+    if (goalCard) {
+        const finalGradeElement = goalCard.querySelector(".final-grade");
+        const alertTextElement = goalCard.querySelector(".alert-text");
+
+        if (finalGradeElement) {
+            const percentageEquivalent = Math.max(65, Math.round(100 - ((selectedGoal - 1) * 12)));
+            finalGradeElement.textContent = `${formattedGoal} (${percentageEquivalent}%)`;
+        }
+
+        // if (alertTextElement) {
+        //     if (selectedGoal <= 1.75) {
+        //         alertTextElement.textContent = "ACADEMIC EXCELLENCE TARGET";
+        //         alertTextElement.style.color = "#2e7d32";
+        //     } else if (selectedGoal <= 2.50) {
+        //         alertTextElement.textContent = "YOU ARE ON TRACK";
+        //         alertTextElement.style.color = "#f49223";
+        //     } else {
+        //         alertTextElement.textContent = "YOU HAVE NOT REACHED YOUR GOAL";
+        //         alertTextElement.style.color = "#cc0000";
+        //     }
+        // }
+    }
+}
+
+if (goalsModal && closeGoalsModalBtn && goalSlider && goalValueDisplay) {
     setGoalsTriggers.forEach((trigger) => {
         trigger.addEventListener("click", (e) => {
             e.preventDefault();
-
             goalsModal.classList.add("active");
         });
     });
 
-    /* Close Modal */
-    const closeGoalsModal = () => {
-        goalsModal.classList.remove("active");
-    };
-
+    const closeGoalsModal = () => { goalsModal.classList.remove("active"); };
     closeGoalsModalBtn.addEventListener("click", closeGoalsModal);
-
-    /* Close when clicking outside card */
+    
     goalsModal.addEventListener("click", (e) => {
-        if (e.target === goalsModal) {
-            closeGoalsModal();
-        }
+        if (e.target === goalsModal) { closeGoalsModal(); }
     });
 
-    /* ESC key close */
     document.addEventListener("keydown", (e) => {
-        if (
-            e.key === "Escape" &&
-            goalsModal.classList.contains("active")
-        ) {
+        if (e.key === "Escape" && goalsModal.classList.contains("active")) {
             closeGoalsModal();
         }
     });
 
-    /* Live Slider Value Update */
     goalSlider.addEventListener("input", () => {
-        goalValueDisplay.textContent = goalSlider.value;
+        goalValueDisplay.textContent = parseFloat(goalSlider.value).toFixed(2);
     });
 
-    /* Save Button */
-    saveGoalBtn.addEventListener("click", () => {
-
-        // Get slider value
+    saveGoalBtn.addEventListener("click", async () => {
         const selectedGoal = parseFloat(goalSlider.value);
+        const user = auth.currentUser;
 
-        // Format to 2 decimal places
-        const formattedGoal = selectedGoal.toFixed(2);
-        const goalCard = document.querySelector(".card-container");
+        if (user) {
+            try {
+                const userDocRef = doc(db, "users", user.uid);
 
-        if (goalCard) {
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    const currentGoal = userData.gwaGoal ? parseFloat(userData.gwaGoal) : null;
 
-            const finalGradeElement =
-                goalCard.querySelector(".final-grade");
-
-            const alertTextElement =
-                goalCard.querySelector(".alert-text");
-
-            if (finalGradeElement) {
-
-                const percentageEquivalent = Math.max(
-                    65,
-                    Math.round(100 - ((selectedGoal - 1) * 12))
-                );
-
-                // Update UI
-                finalGradeElement.textContent =
-                    `${formattedGoal} (${percentageEquivalent}%)`;
-            }
-
-            if (alertTextElement) {
-
-                if (selectedGoal <= 1.75) {
-
-                    alertTextElement.textContent =
-                        "ACADEMIC EXCELLENCE TARGET";
-
-                    alertTextElement.style.color = "#2e7d32";
-
-                } else if (selectedGoal <= 2.50) {
-
-                    alertTextElement.textContent =
-                        "YOU ARE ON TRACK";
-
-                    alertTextElement.style.color = "#f49223";
-
-                } else {
-
-                    alertTextElement.textContent =
-                        "YOU HAVE NOT REACHED YOUR GOAL";
-
-                    alertTextElement.style.color = "#cc0000";
+                    if (currentGoal !== null && selectedGoal === currentGoal) {
+                        saveGoalBtn.classList.add("btn-shake-error");
+                        
+                        setTimeout(() => {
+                            saveGoalBtn.classList.remove("btn-shake-error");
+                        }, 500);
+                        
+                        return;
+                    }
                 }
+
+                saveGoalBtn.textContent = "Saving...";
+                saveGoalBtn.disabled = true;
+                
+                await updateDoc(userDocRef, {
+                    gwaGoal: selectedGoal
+                });
+
+                console.log("Preferred Goal Saved to profile:", selectedGoal.toFixed(2));
+                updateGwaCardUI(selectedGoal);
+                closeGoalsModal();
+                location.reload();
+            } catch (error) {
+                console.error("Error saving goal value to document:", error);
+            } finally {
+                saveGoalBtn.textContent = "Save Goal";
+                saveGoalBtn.disabled = false;
             }
+        } else {
+            updateGwaCardUI(selectedGoal);
+            closeGoalsModal();
         }
-
-        console.log(
-            "Preferred Goal Saved:",
-            formattedGoal
-        );
-
-        // Close modal after update
-        closeGoalsModal();
     });
+
 }

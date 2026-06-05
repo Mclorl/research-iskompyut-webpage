@@ -51,7 +51,7 @@
                 <div class="card-container">
                     <div class="card-content">
                         <h2>Your Goal</h2>
-                        <div class="final-grade">1.00 (100%)</div>
+                        <div class="final-grade" id="GWA-goal">-.--</div>
                         <p class="alert-text">Academic standing is 6% below target goal.</p>
                         <a href="#" class="action-link">Change your goal here...</a>
                     </div>
@@ -60,8 +60,8 @@
                 <div class="card-container">
                     <div class="card-content">
                         <h2>Your GWA</h2>
-                        <div class="final-grade">1.25 (94%)</div>
-                        <p class="status-text">President's Lister</p>
+                        <div class="final-grade" id="GWA-actual-prediction">-.--</div>
+                        <p class="status-text">--</p>
                         <a href="javascript:void(0);" id="check-gwa-trigger" class="action-link">Check your GWA here...</a>
                     </div>
                 </div>
@@ -76,26 +76,7 @@
 
                 <hr class="dashboard-divider">
 
-                <div class="alert-banners">
-                    <div class="banner warning">
-                        <span class="banner-icon">!</span>
-                        <div class="banner-text">
-                            <strong>Computer Programming 2</strong>
-                            <p>
-                                “Minimum score of 45 required on the upcoming Midterm Examination to maintain passing status.”
-                            </p>
-                        </div>
-                    </div>
-                    <div class="banner danger">
-                        <span class="banner-icon">!</span>
-                        <div class="banner-text">
-                            <strong>Discrete Structures 1</strong>
-                            <p>
-                                “Pending Submissions: 2 assignments are currently overdue.”
-                            </p>
-                        </div>
-                    </div>
-                </div>
+                <div class="alert-banners"></div>
 
                 <hr class="dashboard-divider">
 
@@ -108,7 +89,7 @@
     <div id="gwa-modal" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <span class="settings-gear">&#9881;</span>
+                <span class="settings-gear"></span>
                 <h3 class="modal-title">Grades</h3>
                 <button id="close-modal-btn" class="close-modal">&times;</button>
             </div>
@@ -162,7 +143,8 @@
 
                     <div class="prof-grade-section">
                         <span class="prof-name" id="modal-prof-name"></span>
-                        <span class="current-score" id="modal-current-score">3.50 (70%)</span>
+                        <span class="current-score" id="modal-current-score"></span>
+                        <span class="units-badge" id="modal-units-score"></span>
                     </div>
                 </div>
 
